@@ -89,6 +89,7 @@ plot(REGFIT_CS_Sales,scale = "adjr2",main = "Adjusted R^2")
 
 
 
+
 #Checking Residuals vs Fitted Values
 Check1 <- ggplot(CS_Model,aes(x=CS_Model$fitted.values,y=CS_Model$residuals)) + geom_point()
 Check1
