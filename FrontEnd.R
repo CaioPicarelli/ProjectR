@@ -47,7 +47,7 @@ ui <- dashboardPage(
                 box(plotOutput("explanatoryVariablesPlot", height = 400)),
                 box(title = "",
                 radioButtons("explanatory", "Explanatory Variables:", 
-                             c("TV", "Radio", "OOH")))))),
+                             c("TV", "Radio", "OOH","Digital","Print")))))),
     
     tabItem(tabName = "table",
             fluidPage(

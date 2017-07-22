@@ -24,24 +24,9 @@ CS_Sales$Spend <- CS_Sales$TV + CS_Sales$Digital + CS_Sales$OOH + CS_Sales$Radio
 #Data Check
 dim(CS_Sales)
 
-Chart1 <- ggplot(CS_Sales,aes(x=TV,y=Value)) + geom_point()
-Chart1
-Chart2 <- ggplot(CS_Sales,aes(x=Digital,y=Value)) + geom_point()
-Chart2
-Chart3 <- ggplot(CS_Sales,aes(x=OOH,y=Value)) + geom_point()
-Chart3
-Chart4 <- ggplot(CS_Sales,aes(x=Radio,y=Value)) + geom_point()
-Chart4
-Chart5 <- ggplot(CS_Sales,aes(x=Print,y=Value)) + geom_point()
-Chart5
-Chart6 <- ggplot(CS_Sales,aes(x=Spend,y=Value)) + geom_point()
-Chart6
-
 plot.explanatory.variable <- function(data, variable) {
   ggplot(data, aes_string(x=variable, y="Value")) + geom_point()
 }
-
-#Breakage of Money by Media
 
 
 #Correlation Matrix
