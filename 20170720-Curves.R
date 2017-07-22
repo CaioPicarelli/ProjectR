@@ -37,6 +37,10 @@ Chart5
 Chart6 <- ggplot(CS_Sales,aes(x=Spend,y=Value)) + geom_point()
 Chart6
 
+plot.explanatory.variable <- function(data, variable) {
+  ggplot(data, aes_string(x=variable, y="Value")) + geom_point()
+}
+
 #Breakage of Money by Media
 
 
@@ -103,29 +107,4 @@ plot(REGFIT_CS_Sales,scale = "adjr2",main = "Adjusted R^2")
 #Checking Residuals vs Fitted Values
 Check1 <- ggplot(CS_Model,aes(x=CS_Model$fitted.values,y=CS_Model$residuals)) + geom_point()
 Check1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

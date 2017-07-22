@@ -42,11 +42,12 @@ ui <- dashboardPage(
             
     tabItem(tabName = "dashboard",
             fluidPage(
-              titlePanel("Chart"),
+              titlePanel("Uploaded Data"),
               fluidRow(
-                box(plotOutput("plot1", height = 250)),
+                box(plotOutput("explanatoryVariablesPlot", height = 400)),
                 box(title = "",
-                sliderInput("slider", "Number of Weeks:", 1, 1000, 50))))),
+                radioButtons("explanatory", "Explanatory Variables:", 
+                             c("TV", "Radio", "OOH")))))),
     
     tabItem(tabName = "table",
             fluidPage(
@@ -55,21 +56,27 @@ ui <- dashboardPage(
 
 #===============================SERVER======================================================
 
+source("20170720-Curves.R")
+
+read.data <- function(inFile) {
+  if (is.null(inFile)) 
+    return(NULL)
+  read.csv(inFile$datapath, header = T)
+}
 
 server <- function(input, output) {
-  output$plot1 <- renderPlot({Chart1})
+  # Explanatory variables chart
+  output$explanatoryVariablesPlot <- renderPlot({
+    plot.explanatory.variable(
+      read.data(input$file1),
+      input$explanatory
+    )
+  })
   
+  # Data table
   output$CSVfigures <- renderDataTable({
-    inFile <- input$file1
-
-    if (is.null(inFile)) 
-      return(NULL)
-    read.csv(inFile$datapath, header = T)
-    
-    # CSV_Sales_Model <- read.csv(inFile$datapath)
-    # assign('data',CSV_Sales_Model,envir = .GlobalEnv)
-    
-    })
+    read.data(input$file1)
+  })
 }
 
 
