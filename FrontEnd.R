@@ -56,7 +56,7 @@ ui <- dashboardPage(
 
 #===============================SERVER======================================================
 
-source("20170720-Curves.R")
+source("Curves.R")
 
 read.data <- function(inFile) {
   if (is.null(inFile)) 
