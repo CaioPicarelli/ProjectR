@@ -86,6 +86,7 @@ plot(REGFIT_CS_Sales,scale = "adjr2",main = "Adjusted R^2")
 
 plot(REGFIT_CS_Sales$rss,xlab = "Number of Variables", ylab = "RSS",type = "l")
 
+
 plot(REGFIT_CS_Sales,scale = "r2")
 plot(REGFIT_CS_Sales,scale = "adjr2")
 plot(REGFIT_CS_Sales,scale = "Cp")
@@ -96,6 +97,8 @@ REGFIT_CS_Sales.fwd <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~ .,CS_Sales_Be
                                   nvmax=8, method = "forward")
 summary(REGFIT_CS_Sales.fwd)
 
+
+
 REGFIT_CS_Sales.bwd <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~.,CS_Sales_BestSS,
                                   nvmax = 8,method = "backward")
 summary(REGFIT_CS_Sales.bwd)
@@ -104,10 +107,15 @@ summary(REGFIT_CS_Sales.bwd)
 #Cross-Validation
 
 set.seed(1)
-train <- sample(c(TRUE,FALSE), nrow(CS_Sales_BestSS),rep=TRUE)
-test <- (!train)
+CS_Training <- sample(c(TRUE,FALSE), nrow(CS_Sales_BestSS),rep=TRUE)
+CS_Test <- (!CS_Training)
 
+REGFIT_CS_Sales <- regsubsets(CS_Sales_BestSS[CS_Training,]$CS_Sales.Value ~.,
+                              CS_Sales_BestSS[CS_Training,], nvmax = 7)
+summary(REGFIT_CS_Sales)
 
+CS_Training <- model.matrix(CS_Sales_BestSS[CS_Training,]$CS_Sales.Value ~.,
+                            data = CS_Sales_BestSS[CS_Training,])
 
 
 
