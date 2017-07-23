@@ -13,50 +13,78 @@ ui <- dashboardPage(
     sidebarMenu(
       
       menuItem("Upload File",tabName = "csvUpload",icon = icon("upload")),
-      menuItem("Data", tabName = "dashboard", icon = icon("dashboard")),
-      menuItem("Model", tabName = "widgets", icon = icon("th")),
-      menuItem("Variables",tabName = "Test",icon = icon("euro")),
-      menuItem("Table",tabName = "table",icon = icon("table"))
-      
+      menuItem("Data", tabName = "dataTable", icon = icon("table")),
+      menuItem("Visualisation",tabName = "visualization", icon = icon("bar-chart")),
+      menuItem("Model", tabName = "modelOutput", icon = icon("flask"))
       )),
       
   dashboardBody(
     
     tabItems(
       
+    # CSV Upload page
     tabItem(tabName = "csvUpload",
             fluidPage(
               titlePanel("Uploading Files"),
-              sidebarLayout(
-                sidebarPanel(
-                  fileInput('file1','Choose CSV File',accept = c('text/csv',
-                                                                'text/comma-separated-values,
-                                                                text/plain',
-                                                                '.csv')),
-                  radioButtons("UserChoice","Choose Model Dickhead",
-                               c('Price and Promotions',
-                                 'MMM'))),
-            mainPanel()
-            ))),
-            
-            
-    tabItem(tabName = "dashboard",
-            fluidPage(
-              titlePanel("Uploaded Data"),
               fluidRow(
-                box(plotOutput("explanatoryVariablesPlot", height = 400)),
+                fileInput('file1','Choose CSV File',
+                          accept = c('text/csv', 
+                                     'text/comma-separated-values', 
+                                     'text/plain',
+                                     '.csv'))))),
+    # Data table viewer
+    tabItem(tabName = "dataTable",
+            fluidPage(
+              titlePanel("Uploaded CSV data"),
+              dataTableOutput('CSVfigures'))),
+
+    # Data visualizations page
+    tabItem(tabName = "visualization",
+            fluidPage(
+              titlePanel("Data Visualisation"),
+              fluidRow(
+                box(plotOutput("explanatoryVariablesPlot")),
+                box(plotOutput("explanatoryVariablesHistogram"))
+              ),
+              fluidRow(
                 box(title = "",
                 radioButtons("explanatory", "Explanatory Variables:", 
                              c("TV", "Radio", "OOH","Digital","Print")))))),
     
-    tabItem(tabName = "table",
+    # Model output page
+    tabItem(tabName = "modelOutput",
             fluidPage(
-              dataTableOutput('CSVfigures'))))))
+              titlePanel("Model Outputs"),
+              fluidRow(
+                column(width = 12,
+                  radioButtons("category", "Choose type of model:", 
+                                   c("Cross-sectional", "Time series")))
+              ),
+              
+              # Linear regression model output
+              fluidRow(
+                column(width = 12,
+                       titlePanel("Linear Regression"),
+                       "Model coefficients:",
+                       tableOutput("linearRegressionCoef"),
+                       "Spend Curve:",
+                       plotOutput("linearRegressionSpendCurve"))
+              ),
+              
+              # Ridge regression output
+              fluidRow(
+                column(width = 12,
+                       titlePanel("Ridge Regression"))
+              )
+            ))
+    
+    )))
        
 
 #===============================SERVER======================================================
 
 source("Curves.R")
+source("Models.R")
 
 read.data <- function(inFile) {
   if (is.null(inFile)) 
@@ -73,9 +101,26 @@ server <- function(input, output) {
     )
   })
   
+  # Explanatory variables histogram
+  output$explanatoryVariablesHistogram <- renderPlot({
+    plot.explanatory.histogram(
+      read.data(input$file1),
+      input$explanatory
+    )
+  })
+  
   # Data table
   output$CSVfigures <- renderDataTable({
     read.data(input$file1)
+  })
+  
+  # Linear regression output
+  output$linearRegressionCoef <- renderTable({
+    linear.reg.coeffs(read.data(input$file1))
+  })
+  
+  output$linearRegressionSpendCurve <- renderPlot({
+    linear.reg.spend.curve(read.data(input$file1))
   })
 }
 

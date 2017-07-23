@@ -24,11 +24,6 @@ CS_Sales$Spend <- CS_Sales$TV + CS_Sales$Digital + CS_Sales$OOH + CS_Sales$Radio
 #Data Check
 dim(CS_Sales)
 
-plot.explanatory.variable <- function(data, variable) {
-  ggplot(data, aes_string(x=variable, y="Value")) + geom_point()
-}
-
-
 #Correlation Matrix
 CS_Corr <- data.frame(CS_Sales$Value,CS_Sales$TV,CS_Sales$Digital,
                       CS_Sales$OOH,CS_Sales$Radio,CS_Sales$Print,CS_Sales$Distribution)
