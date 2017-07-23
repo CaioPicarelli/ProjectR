@@ -112,5 +112,26 @@ summary(REGFIT_CS_Sales)
 CS_Training <- model.matrix(CS_Sales_BestSS[CS_Training,]$CS_Sales.Value ~.,
                             data = CS_Sales_BestSS[CS_Training,])
 
+dim(CS_Training)
+val.errors <- rep(NA,24)
+for(i in 1:21) {
+  coefi <- coef(REGFIT_CS_Sales,id = i)
+  pred <- CS_Training[,names(coefi)]%*%coefi
+  val.errors[i] <- mean((CS_Sales_BestSS$CS_Sales.Value[CS_Test]-pred)^2)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
