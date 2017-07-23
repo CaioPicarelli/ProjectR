@@ -71,7 +71,7 @@ MSE_CS_Spends3
 # alpha.fn(CS_Sales_Bootstrap,1:10)
 
 
-#Best Subset Selection
+#6.5.1 Best Subset Selection ====== Find a way to do 
 library(leaps)
 
 CS_Sales_BestSS <- data.frame(CS_Sales$Value,CS_Sales$Volume,CS_Sales$TV,
@@ -80,17 +80,34 @@ CS_Sales_BestSS <- data.frame(CS_Sales$Value,CS_Sales$Volume,CS_Sales$TV,
 
 REGFIT_CS_Sales <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~., CS_Sales_BestSS)
 
-## CREATE MORE OUTPUT
+## CREATE MORE OUTPUT - NOT WORKING
 summary(REGFIT_CS_Sales)
 plot(REGFIT_CS_Sales,scale = "adjr2",main = "Adjusted R^2")
 
-#Forward and Backward Stepwise Selection
+plot(REGFIT_CS_Sales$rss,xlab = "Number of Variables", ylab = "RSS",type = "l")
+
+plot(REGFIT_CS_Sales,scale = "r2")
+plot(REGFIT_CS_Sales,scale = "adjr2")
+plot(REGFIT_CS_Sales,scale = "Cp")
+plot(REGFIT_CS_Sales,scale = "bic")
+
+#6.5.2 Forward and Backward Stepwise Selection
+REGFIT_CS_Sales.fwd <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~ .,CS_Sales_BestSS,
+                                  nvmax=8, method = "forward")
+summary(REGFIT_CS_Sales.fwd)
+
+REGFIT_CS_Sales.bwd <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~.,CS_Sales_BestSS,
+                                  nvmax = 8,method = "backward")
+summary(REGFIT_CS_Sales.bwd)
+
+#6.5.3 Choosing Among Models Using the Validation Set Approach and 
+#Cross-Validation
+
+set.seed(1)
+train <- sample(c(TRUE,FALSE), nrow(CS_Sales_BestSS),rep=TRUE)
+test <- (!train)
 
 
 
 
-
-#Checking Residuals vs Fitted Values
-Check1 <- ggplot(CS_Model,aes(x=CS_Model$fitted.values,y=CS_Model$residuals)) + geom_point()
-Check1
 
