@@ -221,7 +221,7 @@ fit.5=lm(Value ~ poly(TV,5),CS_Sales)
 
 anova(fit.1,fit.2,fit.3,fit.4,fit.5)
 
-
+#Splines
 
 
 
