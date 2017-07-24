@@ -93,40 +93,40 @@ plot(REGFIT_CS_Sales.bwd,scale = "adjr2")
 plot(REGFIT_CS_Sales.bwd,scale = "Cp")
 plot(REGFIT_CS_Sales.bwd,scale = "bic")
 
-#6.5.3 Choosing Among Models Using the Validation Set Approach and 
-#Cross-Validation
-set.seed(1)
-CS_Training <- sample(c(TRUE,FALSE), nrow(CS_Sales_BestSS),rep=TRUE)
-CS_Test <- (!CS_Training)
-
-REGFIT_CS_Sales <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~.,
-                              CS_Sales_BestSS[CS_Training,], nvmax = 20)
-summary(REGFIT_CS_Sales)
-
-CS_Training <- model.matrix(CS_Sales_BestSS$CS_Sales.Value ~.,
-                            data = CS_Sales_BestSS[CS_Test,])
-
-
-val.errors <- rep(NA,20)
-for(i in 1:20) {
-  coefi <- coef(REGFIT_CS_Sales,id = i)
-  pred <- CS_Training[,names(coefi)]%*%coefi
-  val.errors[i] <- mean((CS_Sales_BestSS$CS_Sales.Value[CS_Test]-pred)^2)
-}
-
-#among the models of different sizes using Cross Validation
-k = 10
-set.seed(1)
-folds <- sample(1:k,nrow(CS_Sales_BestSS),replace = TRUE)
-cv.errors <- matrix(NA,k,20,dimnames = list(NULL,paste(1:20)))
-
-for(j in 1:k){
-  best.fit <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~ .,CS_Sales_BestSS[folds != j,],nvmax = 20)
-  for (i in 1:20){
-    pred <- predict(best.fit,CS_Sales_BestSS[folds==j,],id=i)
-    cv.errors[j,i] <- mean((CS_Sales_BestSS$CS_Sales.Value[folds == j] - pred)^2)
-  }
-}
+# #6.5.3 Choosing Among Models Using the Validation Set Approach and 
+# #Cross-Validation
+# set.seed(1)
+# CS_Training <- sample(c(TRUE,FALSE), nrow(CS_Sales_BestSS),rep=TRUE)
+# CS_Test <- (!CS_Training)
+# 
+# REGFIT_CS_Sales <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~.,
+#                               CS_Sales_BestSS[CS_Training,], nvmax = 20)
+# summary(REGFIT_CS_Sales)
+# 
+# CS_Training <- model.matrix(CS_Sales_BestSS$CS_Sales.Value ~.,
+#                             data = CS_Sales_BestSS[CS_Test,])
+# 
+# 
+# val.errors <- rep(NA,20)
+# for(i in 1:20) {
+#   coefi <- coef(REGFIT_CS_Sales,id = i)
+#   pred <- CS_Training[,names(coefi)]%*%coefi
+#   val.errors[i] <- mean((CS_Sales_BestSS$CS_Sales.Value[CS_Test]-pred)^2)
+# }
+# 
+# #among the models of different sizes using Cross Validation
+# k = 10
+# set.seed(1)
+# folds <- sample(1:k,nrow(CS_Sales_BestSS),replace = TRUE)
+# cv.errors <- matrix(NA,k,20,dimnames = list(NULL,paste(1:20)))
+# 
+# for(j in 1:k){
+#   best.fit <- regsubsets(CS_Sales_BestSS$CS_Sales.Value ~ .,CS_Sales_BestSS[folds != j,],nvmax = 20)
+#   for (i in 1:20){
+#     pred <- predict(best.fit,CS_Sales_BestSS[folds==j,],id=i)
+#     cv.errors[j,i] <- mean((CS_Sales_BestSS$CS_Sales.Value[folds == j] - pred)^2)
+#   }
+# }
 
 #6.6 Lab 2: Ridge Regression and the Lasso
 x=model.matrix(CS_Sales_BestSS$CS_Sales.Value ~ .,CS_Sales_BestSS)[,-1]
@@ -186,7 +186,51 @@ lasso.pred=predict(lasso.mod,s=bestlam ,newx=x[test,])
 mean((lasso.pred-y.test)^2)
 
 #7.8 Lab: Non-linear Modeling
+#7.8.1 Polynomial Regression and Step Functions
+#Apply to function by media
 library(ISLR)
+fit <- lm(Value ~ poly(TV,4,raw = T), CS_Sales)
+summary(fit2)
+
+#using Wrapper I()
+fit2a = lm(Value ~ TV + I(TV^2) + I(TV^3) + I(TV^4),CS_Sales)
+coef(fit2a)
+
+fit2b = lm(Value ~ cbind(TV,TV^2,TV^3,TV^4),data=CS_Sales)
+
+TVlims = range(TV)
+TV.grid = seq(from=TVlims[1],to=TVlims[2])
+preds = predict(fit,newdata = list(TV = TV.grid),se=TRUE)
+se.bands = cbind(preds$fit + 2*preds$se.fit,preds$fit - 2*preds$se.fit)
+'ploting the data'
+par(mfrow=c(1,2),mar=c(4.5,4.5,1,1) ,oma=c(0,0,4,0))
+plot(TV,Value,xlim=TVlims ,cex=.5,col="darkgrey")
+title("Degree -4 Polynomial ",outer=T)
+lines(TV.grid,preds$fit,lwd=2,col="blue")
+matlines(TV.grid,se.bands,lwd=1,col="blue",lty=3)
+
+preds2=predict(fit2,newdata=list(TV=TV.grid),se=TRUE)
+max(abs(preds$fit -preds2$fit ))
+
+#ANOVA
+fit.1=lm(Value ~ TV,CS_Sales)
+fit.2=lm(Value ~ poly(TV,2),CS_Sales)
+fit.3=lm(Value ~ poly(TV,3),CS_Sales)
+fit.4=lm(Value ~ poly(TV,4),CS_Sales)
+fit.5=lm(Value ~ poly(TV,5),CS_Sales)
+
+anova(fit.1,fit.2,fit.3,fit.4,fit.5)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
