@@ -83,7 +83,7 @@ ui <- dashboardPage(
 
 #===============================SERVER======================================================
 
-source("Curves.R")
+'source("Curves.R")'
 source("Models.R")
 
 read.data <- function(inFile) {
