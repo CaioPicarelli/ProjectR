@@ -203,7 +203,8 @@ TV.grid = seq(from=TVlims[1],to=TVlims[2])
 preds = predict(fit,newdata = list(TV = TV.grid),se=TRUE)
 se.bands = cbind(preds$fit + 2*preds$se.fit,preds$fit - 2*preds$se.fit)
 'ploting the data'
-par(mfrow=c(1,2),mar=c(4.5,4.5,1,1) ,oma=c(0,0,4,0))
+
+'par(mfrow=c(1,2),mar=c(4.5,4.5,1,1) ,oma=c(0,0,4,0))'
 plot(TV,Value,xlim=TVlims ,cex=.5,col="darkgrey")
 title("Degree -4 Polynomial ",outer=T)
 lines(TV.grid,preds$fit,lwd=2,col="blue")
@@ -222,6 +223,58 @@ fit.5=lm(Value ~ poly(TV,5),CS_Sales)
 anova(fit.1,fit.2,fit.3,fit.4,fit.5)
 
 #Splines
+library(splines)
+
+fit=lm(Value ~ bs(TV,knots=c(500000,750000,1000000)),data = CS_Sales)
+pred = predict(fit,newdata = list(TV=TV.grid),se=T)
+plot(TV,Value,col="blue")
+
+lines(TV.grid,pred$fit, lwd = 2)
+
+lines(TV.grid,pred$fit + 2*pred$se ,lty="dashed")
+lines(TV.grid,pred$fit - 2*pred$se ,lty="dashed")
+
+# Fitting a Natural Spline
+fit2 = lm(Value ~ ns(TV,df = 4),data = CS_Sales)
+pred2 = predict(fit2,newdata = list(TV = TV.grid), se=T)
+lines(TV.grid,pred2$fit,col = "red",lwd = 2)
+
+# plot smoothing spline
+plot(TV,Value,xlim = TVlims, cex = .5,col = "darkgrey")
+title("Smoothing Spline")
+fit = smooth.spline(TV,Value,df = 16)
+fit2 = smooth.spline(TV,Value,cv = TRUE)
+fit2$df
+lines(fit,col = "red", lwd = 2)
+lines(fit2,col = "blue", lwd = 2)
+
+legend("topright",legend=c("16 DF","3.8 DF"),
+       col=c("red","blue"),lty=1,lwd=2,cex=.8)
+
+#GAMs
+library(gam)
+gam1 = lm(Value ~ ns(TV,4) + ns(Radio,5) + Volume, data = CS_Sales)
+
+gam.m3 = gam(Value ~ s(TV,4) + s(Radio,5) + Volume,data = CS_Sales)
+
+plot(gam.m3, se=TRUE,col="blue")
+plot.gam(gam1, se=TRUE, col="red")
+
+# Perform ANOVA in a series of GAM models to determine better model.
+# Model1 performs GAM excluding Radio
+# Model2 performs GAM using linear function of Radio
+# Model3 spline function of Radio
+
+gam.m1 = gam(Value ~ s(TV,4) + Volume ,data = CS_Sales)
+gam.m2=gam(Value ~ Radio + s(TV,4) + Volume ,data = CS_Sales)
+anova(gam.m1,gam.m2,gam.m3,test="F")
+summary(gam.m2)
+
+# Making Predictions with GAM
+preds = predict(gam.m2, newdata = Value)
+
+
+
 
 
 
