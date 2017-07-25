@@ -16,6 +16,7 @@ ui <- dashboardPage(
       menuItem("Data", tabName = "dataTable", icon = icon("table")),
       menuItem("Visualisation",tabName = "visualization", icon = icon("bar-chart")),
       menuItem("Model", tabName = "modelOutput", icon = icon("flask"))
+      
       )),
       
   dashboardBody(
@@ -61,6 +62,49 @@ ui <- dashboardPage(
                                    c("Cross-sectional", "Time series")))
               ),
               
+              # input Cost per GRP and Carry Over
+              fluidRow(
+                tags$style("[type = 'number'] {font-size:15px;height:50px;}"),
+                titlePanel("Insert Cost per GRPs and Carry Over"),
+                column(3,
+                      tags$style("[type ='text/css'] {font-size: 20px;}"),
+                      numericInput("CGRP_TV",
+                                    label = h5("TV"),
+                                    value = ""),
+                      numericInput("CGRP_Dig",
+                                    label = h5("Digital"),
+                                    value = ""),
+                      numericInput("CGRP_Radio",
+                                     label = h5("Radio"),
+                                     value = ""),
+                      numericInput("CGRP_OOH",
+                                     label = h5("OOH"),
+                                     value = ""),
+                      numericInput("CGRP_Print",
+                                   label = h5("Print"),
+                                   value = "")),
+                column(3,
+                       tags$style("[type ='text/css'] {font-size: 20px;}"),
+                       numericInput("co_TV",
+                                    label = h5("TV"),
+                                    value = ""),
+                       numericInput("co__Dig",
+                                    label = h5("Digital"),
+                                    value = ""),
+                       numericInput("co__Radio",
+                                    label = h5("Radio"),
+                                    value = ""),
+                       numericInput("co__OOH",
+                                    label = h5("OOH"),
+                                    value = ""),
+                       numericInput("co__Print",
+                                    label = h5("Print"),
+                                    value = ""))
+                
+                
+              ),
+              
+              
               # Linear regression model output
               fluidRow(
                 column(width = 12,
@@ -77,10 +121,9 @@ ui <- dashboardPage(
                        titlePanel("Ridge Regression"))
               )
             ))
-    
+
     )))
        
-
 #===============================SERVER======================================================
 
 'source("Curves.R")'
@@ -122,6 +165,15 @@ server <- function(input, output) {
   output$linearRegressionSpendCurve <- renderPlot({
     linear.reg.spend.curve(read.data(input$file1))
   })
+  
+  # Pick Cost per GRPs and Carry Over for channels
+  output$CostPerGRP <- renderText({
+    CGRP_CO(read.data(input$CGRP_TV,input$CGRP_Radio,input$CGRP_OOH,
+                      input$CGRP_Print,input$CGRP_Dig,input$co_TV,
+                      input$co_Radio,input$co_OOH,input$co_Print,
+                      input$co_Dig))
+  })
+  
 }
 
 
@@ -129,10 +181,6 @@ shinyApp(ui, server)
 
 
 
-#ISSUES:
-# 
-# input CSV has to be part of Global environment;
-# Create a database? is it worth?
 
 
 
