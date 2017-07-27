@@ -3,7 +3,8 @@ library(shiny) # load shiny at beginning at both scripts
 library(shinydashboard)
 library(flexdashboard)
 
-options(shiny.maxRequestSize=30*1024^2) 
+options(shiny.maxRequestSize=30*1024^2)
+
 
 ui <- dashboardPage(
   dashboardHeader(title = "Analysis"),
@@ -14,6 +15,7 @@ ui <- dashboardPage(
       
       menuItem("Upload File",tabName = "csvUpload",icon = icon("upload")),
       menuItem("Data", tabName = "dataTable", icon = icon("table")),
+      menuItem("AdStocks", tabName = "dataTable2", icon = icon("table")),
       menuItem("Visualisation",tabName = "visualization", icon = icon("bar-chart")),
       menuItem("Model", tabName = "modelOutput", icon = icon("flask"))
       
@@ -38,6 +40,11 @@ ui <- dashboardPage(
             fluidPage(
               titlePanel("Uploaded CSV data"),
               dataTableOutput('CSVfigures'))),
+    
+    # Data table with adstocks
+    tabItem(tabName = "adstocks",
+            h4("Type values for Costs per GRP and Carry Over"),
+            fluidRow(dataTableOutput("TS.Sales.Ads"))),
 
     # Data visualizations page
     tabItem(tabName = "visualization",
@@ -137,6 +144,7 @@ read.data <- function(inFile) {
 }
 
 server <- function(input, output) {
+  
   # Explanatory variables chart
   output$explanatoryVariablesPlot <- renderPlot({
     plot.explanatory.variable(
@@ -153,9 +161,14 @@ server <- function(input, output) {
     )
   })
   
-  # Data table
+  # Data table as Input
   output$CSVfigures <- renderDataTable({
     read.data(input$file1)
+  })
+  
+  # Data table with Adstocks
+  output$TS.Sales.Ads <- renderDataTable({
+    read.data(input$TS.Sales.Ads)
   })
   
   # Linear regression output
@@ -172,6 +185,11 @@ server <- function(input, output) {
     plot.TS.period(read.data(input$file1))
   })
   
+  # Plot Linear regression on TS.Value against period
+  output$LM.TS.SalesPeriod <- renderPlot({
+    plot.LM.TS.period(read.data(input$file1))
+  })
+  
   # Pick Cost per GRPs and Carry Over for channels
   output$CostPerGRP <- renderText({
     CGRP_CO(read.data(input$CGRP_TV,input$CGRP_Radio,input$CGRP_OOH,
@@ -179,6 +197,7 @@ server <- function(input, output) {
                       input$co_Radio,input$co_OOH,input$co_Print,
                       input$co_Dig))
   })
+  
   
 }
 
