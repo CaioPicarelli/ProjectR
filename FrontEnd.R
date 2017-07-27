@@ -45,6 +45,7 @@ ui <- dashboardPage(
               titlePanel("Data Visualisation"),
               fluidRow(
                 box(plotOutput("explanatoryVariablesPlot")),
+                box(plotOutput("TS.SalesPeriod")),
                 box(plotOutput("explanatoryVariablesHistogram"))
               ),
               fluidRow(
@@ -164,6 +165,11 @@ server <- function(input, output) {
   
   output$linearRegressionSpendCurve <- renderPlot({
     linear.reg.spend.curve(read.data(input$file1))
+  })
+  
+  # Plot TS.Value against period
+  output$TS.SalesPeriod <- renderPlot({
+    plot.TS.period(read.data(input$file1))
   })
   
   # Pick Cost per GRPs and Carry Over for channels

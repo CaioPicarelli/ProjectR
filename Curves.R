@@ -15,20 +15,18 @@ library(corrplot)
 library(leaps)
 setwd("~/Desktop")
 
-CS_Sales<- read.csv("CS-Sales.csv",sep = ",",header = T)
-attach(CS_Sales)
+CS.Sales<- read.csv("CS-Sales.csv",sep = ",",header = T)
+attach(CS.Sales)
 
-#Add All media spends into one column:  Don't do this now....No Real Data to Use
-CS_Sales$Spend <- CS_Sales$TV + CS_Sales$Digital + CS_Sales$OOH + CS_Sales$Radio +CS_Sales$Print
 
 #Data Check
 dim(CS_Sales)
 
 #Correlation Matrix
-CS_Corr <- data.frame(CS_Sales$Value,CS_Sales$TV,CS_Sales$Digital,
-                      CS_Sales$OOH,CS_Sales$Radio,CS_Sales$Print,CS_Sales$Distribution)
+CS.Corr <- data.frame(CS.Sales$Value,CS.Sales$TV,CS.Sales$Digital,
+                      CS.Sales$OOH,CS.Sales$Radio,CS.Sales$Print,CS.Sales$Distribution)
 
-CS_Corr <- corrplot.mixed(corr=cor(CS_Corr,use="complete.obs"),upper="ellipse",tl.pos = "lt")
+CS.Corr <- corrplot.mixed(corr=cor(CS.Corr,use="complete.obs"),upper="ellipse",tl.pos = "lt")
 
 #Linear Model with all variables
 CS_Model <- lm(Value ~ Volume + TV + OOH + Print + Digital
@@ -274,10 +272,14 @@ summary(gam.m2)
 preds = predict(gam.m2, newdata = Value)
 
 
+#Times Series Download
+setwd("~/Desktop")
+TS.Sales<- read.csv("TS-Sales.csv",sep = ",",header = T)
+attach(TS.Sales)
 
-
-
-
+library(ggplot2)
+ggplot(TS.Sales,aes(x=Period,y=Value)) + geom_line()
+plot(Period,Value)
 
 
 
