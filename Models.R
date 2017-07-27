@@ -46,24 +46,43 @@ plot.TS.period <- function(data, variable) {
   labs(y = "Value",x = "Period",title = "Value vs Period")
 }
 
+adstock <- function(GRP, ret.factor, n) {
+  adstock <- integer(length = n)
+  adstock[1] <- GRP[1]
+  for(i in 2:n) {
+    adstock[i] <- (adstock[i - 1] * ret.factor) + GRP[i]
+  }
+  
+  return(adstock)
+}
 
 # Building new data frame transforming Spends to Adstocks
-TS.Ads.CO <- function(transformTS){
-  carryOver <- data.frame(input$co_TV,input$co_Radio,input$co_OOH,input$co_Print,input$co_Dig)
-  Cost <- data.frame(input$CGRP_TV,input$CGRP_Radio,input$CGRP_OOH,input$CGRP_Print,input$CGRP_Dig)
-  TS.Sales$TVGRPs <- TV/CGRP_TV
-  TS.Sales$RadioGRPs <- Radio/CGRP_Radio
-  TS.Sales$OOHGRPs <- OOH/CGRP_OOH
-  TS.Sales$PrintGRPs <- Print/CGRP_Print
-  TS.Sales$DigGRPs <- Digital/CGRP_Dig
+TS.Ads.CO <- function(data, input){
+  carryOver <- data.frame(co_TV = input$co_TV,
+                          co_Radio = input$co_Radio,
+                          co_OOH = input$co_OOH,
+                          co_Print = input$co_Print,
+                          co_Dig = input$co_Dig)
+  Cost <- data.frame(CGRP_TV = input$CGRP_TV,
+                     CGRP_Radio = input$CGRP_Radio,
+                     CGRP_OOH = input$CGRP_OOH,
+                     CGRP_Print = input$CGRP_Print,
+                     CGRP_Dig = input$CGRP_Dig)
+  data$TVGRPs <- data$TV/Cost$CGRP_TV
+  data$RadioGRPs <- data$Radio/Cost$CGRP_Radio
+  data$OOHGRPs <- data$OOH/Cost$CGRP_OOH
+  data$PrintGRPs <- data$Print/Cost$CGRP_Print
+  data$DigGRPs <- data$Digital/Cost$CGRP_Dig
   
-'===========Fix formula below'  
-  TS.Sales$TVads <- (TS.Sales$TVads*co_TV) + TS.Sales$TVGRPs
-  TS.Sales$Radioads <- (TS.Sales$TVads*co_TV) + TS.Sales$TVGRPs
-  TS.Sales$OOHads <- (TS.Sales$OOHads*co_TV) + TS.Sales$OOHGRPs
-  TS.Sales$Printads <- (TS.Sales$Printads*co_Print) + TS.Sales$PrintGRPs
-  TS.Sales$Digads <- (TS.Sales$Digads*co_Dig) + TS.Sales$DigGRPs
-  
+  # ===========Fix formula below
+  N <- nrow(data)
+  data$TVads <- adstock(data$TVGRPs, carryOver$co_TV, N)
+  data$Radioads <- adstock(data$RadioGRPs, carryOver$co_Radio, N)
+  data$OOHads <- adstock(data$OOHGRPs, carryOver$co_OOH, N)
+  data$Printads <- adstock(data$PrintGRPs, carryOver$co_Print, N)
+  data$Digads <- adstock(data$DigGRPs, carryOver$co_Dig, N)
+
+  return(data)
 }
 
 

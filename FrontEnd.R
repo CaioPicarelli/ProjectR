@@ -15,7 +15,7 @@ ui <- dashboardPage(
       
       menuItem("Upload File",tabName = "csvUpload",icon = icon("upload")),
       menuItem("Data", tabName = "dataTable", icon = icon("table")),
-      menuItem("AdStocks", tabName = "dataTable2", icon = icon("table")),
+      menuItem("AdStocks", tabName = "adstocks", icon = icon("table")),
       menuItem("Visualisation",tabName = "visualization", icon = icon("bar-chart")),
       menuItem("Model", tabName = "modelOutput", icon = icon("flask"))
       
@@ -43,8 +43,57 @@ ui <- dashboardPage(
     
     # Data table with adstocks
     tabItem(tabName = "adstocks",
-            h4("Type values for Costs per GRP and Carry Over"),
-            fluidRow(dataTableOutput("TS.Sales.Ads"))),
+            fluidPage(
+              titlePanel("Transformation from Costs to Adstocks"),
+              
+              # input Cost per GRP and Carry Over
+              fluidRow(
+                tags$style("[type = 'number'] {font-size:15px;height:50px;}"),
+                titlePanel("Insert Cost per GRPs and Carry Over"),
+                column(3,
+                       tags$style("[type ='text/css'] {font-size: 20px;}"),
+                       numericInput("CGRP_TV",
+                                    label = h5("TV"),
+                                    value = 1500),
+                       numericInput("CGRP_Dig",
+                                    label = h5("Digital"),
+                                    value = 1300),
+                       numericInput("CGRP_Radio",
+                                    label = h5("Radio"),
+                                    value = 350),
+                       numericInput("CGRP_OOH",
+                                    label = h5("OOH"),
+                                    value = 500),
+                       numericInput("CGRP_Print",
+                                    label = h5("Print"),
+                                    value = 250)),
+                column(3,
+                       tags$style("[type ='text/css'] {font-size: 20px;}"),
+                       numericInput("co_TV",
+                                    label = h5("TV"),
+                                    value = 0.55),
+                       numericInput("co_Dig",
+                                    label = h5("Digital"),
+                                    value = 0.67),
+                       numericInput("co_Radio",
+                                    label = h5("Radio"),
+                                    value = 0.67),
+                       numericInput("co_OOH",
+                                    label = h5("OOH"),
+                                    value = 0.55),
+                       numericInput("co_Print",
+                                    label = h5("Print"),
+                                    value = 0.66))
+                
+                
+              ),
+              
+              # New data frame with AdStocks
+              fluidRow(
+              h4("Data with Adstocks"),
+              dataTableOutput("Adstock")))
+              ),
+              
 
     # Data visualizations page
     tabItem(tabName = "visualization",
@@ -70,47 +119,7 @@ ui <- dashboardPage(
                                    c("Cross-sectional", "Time series")))
               ),
               
-              # input Cost per GRP and Carry Over
-              fluidRow(
-                tags$style("[type = 'number'] {font-size:15px;height:50px;}"),
-                titlePanel("Insert Cost per GRPs and Carry Over"),
-                column(3,
-                      tags$style("[type ='text/css'] {font-size: 20px;}"),
-                      numericInput("CGRP_TV",
-                                    label = h5("TV"),
-                                    value = ""),
-                      numericInput("CGRP_Dig",
-                                    label = h5("Digital"),
-                                    value = ""),
-                      numericInput("CGRP_Radio",
-                                     label = h5("Radio"),
-                                     value = ""),
-                      numericInput("CGRP_OOH",
-                                     label = h5("OOH"),
-                                     value = ""),
-                      numericInput("CGRP_Print",
-                                   label = h5("Print"),
-                                   value = "")),
-                column(3,
-                       tags$style("[type ='text/css'] {font-size: 20px;}"),
-                       numericInput("co_TV",
-                                    label = h5("TV"),
-                                    value = ""),
-                       numericInput("co__Dig",
-                                    label = h5("Digital"),
-                                    value = ""),
-                       numericInput("co__Radio",
-                                    label = h5("Radio"),
-                                    value = ""),
-                       numericInput("co__OOH",
-                                    label = h5("OOH"),
-                                    value = ""),
-                       numericInput("co__Print",
-                                    label = h5("Print"),
-                                    value = ""))
-                
-                
-              ),
+              
               
               
               # Linear regression model output
@@ -191,16 +200,12 @@ server <- function(input, output) {
   })
   
   # Pick Cost per GRPs and Carry Over for channels
-  output$CostPerGRP <- renderText({
-    CGRP_CO(read.data(input$CGRP_TV,input$CGRP_Radio,input$CGRP_OOH,
-                      input$CGRP_Print,input$CGRP_Dig,input$co_TV,
-                      input$co_Radio,input$co_OOH,input$co_Print,
-                      input$co_Dig))
-  })
+  output$Adstock <- renderDataTable({
+    TS.Ads.CO(read.data(input$file1), input)
+  }, options = list(scrollX = TRUE))
   
   
 }
-
 
 shinyApp(ui, server)
 
