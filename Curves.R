@@ -271,21 +271,48 @@ summary(gam.m2)
 # Making Predictions with GAM
 preds = predict(gam.m2, newdata = Value)
 
-
+#TESTING===============================================================
 #Times Series Download
 setwd("~/Desktop")
 TS.Sales<- read.csv("TS-Sales.csv",sep = ",",header = T)
 attach(TS.Sales)
 
-library(ggplot2)
-ggplot(TS.Sales,aes(x=Period,y=Value)) + geom_line()
-plot(Period,Value)
 
+test <- function(data) {
+  TS.fit <- lm(Value ~ TV + Digital + OOH + Radio + Print + Distribution, data)
+  newData <- data.frame(data$TV,data$Digital,data$OOH,data$Radio,data$Print
+                        ,data$Distribution)
+  
+  df <- TS.fit$residuals
+  return(df)}
 
+testdf <- function(df) {
+  df.fit <- df
+  return(df.fit)
+}
+testdf(TS.Sales)
 
+test(TS.Sales)
 
-
-
+Pica <- function(cock) {
+  
+  if (cock > 0) {
+    result <- "Pau no CU"
+  }
+  else if (cock < 0 ){
+    result <- "suck my dick"
+  }
+  else {
+    result <- "deu merda"
+  }
+  
+  df <- data.frame(result)
+  return(df)
+  
+  
+}
+  
+Pica(10)
 
 
 

@@ -25,7 +25,7 @@ ui <- dashboardPage(
     
     tabItems(
       
-    # CSV Upload page
+    # CSV Upload page======================================================
     tabItem(tabName = "csvUpload",
             fluidPage(
               titlePanel("Uploading Files"),
@@ -34,14 +34,23 @@ ui <- dashboardPage(
                           accept = c('text/csv', 
                                      'text/comma-separated-values', 
                                      'text/plain',
-                                     '.csv'))))),
-    # Data table viewer
+                                     '.csv'))),
+    
+              # Selection of Model
+              fluidRow(
+                column(width = 12,
+                       radioButtons("category", "Choose type of model:", 
+                                    c("Cross-sectional Sales", "Time series Sales",
+                                      "Times Series Price and Promotions")))))
+            ),
+    
+    # Data table viewer======================================================
     tabItem(tabName = "dataTable",
             fluidPage(
               titlePanel("Uploaded CSV data"),
               dataTableOutput('CSVfigures'))),
     
-    # Data table with adstocks
+    # Data table with adstocks======================================================
     tabItem(tabName = "adstocks",
             fluidPage(
               titlePanel("Transformation from Costs to Adstocks"),
@@ -95,7 +104,7 @@ ui <- dashboardPage(
               ),
               
 
-    # Data visualizations page
+    # Data visualizations page======================================================
     tabItem(tabName = "visualization",
             fluidPage(
               titlePanel("Data Visualisation"),
@@ -109,17 +118,10 @@ ui <- dashboardPage(
                 radioButtons("explanatory", "Explanatory Variables:", 
                              c("TV", "Radio", "OOH","Digital","Print")))))),
     
-    # Model output page
+    # Model output page======================================================
     tabItem(tabName = "modelOutput",
             fluidPage(
               titlePanel("Model Outputs"),
-              fluidRow(
-                column(width = 12,
-                  radioButtons("category", "Choose type of model:", 
-                                   c("Cross-sectional", "Time series")))
-              ),
-              
-              
               
               
               # Linear regression model output
@@ -127,9 +129,9 @@ ui <- dashboardPage(
                 column(width = 12,
                        titlePanel("Linear Regression"),
                        "Model coefficients:",
-                       tableOutput("linearRegressionCoef"),
+                       dataTableOutput("LM.TS"),
                        "Spend Curve:",
-                       plotOutput("linearRegressionSpendCurve"))
+                       plotOutput(""))
               ),
               
               # Ridge regression output
@@ -194,15 +196,15 @@ server <- function(input, output) {
     plot.TS.period(read.data(input$file1))
   })
   
-  # Plot Linear regression on TS.Value against period
-  output$LM.TS.SalesPeriod <- renderPlot({
-    plot.LM.TS.period(read.data(input$file1))
-  })
-  
   # Pick Cost per GRPs and Carry Over for channels
   output$Adstock <- renderDataTable({
     TS.Ads.CO(read.data(input$file1), input)
   }, options = list(scrollX = TRUE))
+  
+  # # Run Linear regression on TS.Value against period
+  output$LM.TS<- renderDataTable({
+    LM(read.data(df))
+  })
   
   
 }

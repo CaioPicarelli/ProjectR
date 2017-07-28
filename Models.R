@@ -1,5 +1,6 @@
-library(ggplot2)
 
+library(ggplot2)
+rm(list=ls())
 
 #' Returns a ggplot scatter plot for chosen explanatory variables
 plot.explanatory.variable <- function(data, variable) {
@@ -12,7 +13,6 @@ plot.explanatory.histogram <- function(data, variable) {
   temp.data <- data.frame(
     x = rnorm(1000)
   )
-  
   ggplot(temp.data, aes(x)) + geom_histogram()
 }
 
@@ -74,24 +74,34 @@ TS.Ads.CO <- function(data, input){
   data$PrintGRPs <- data$Print/Cost$CGRP_Print
   data$DigGRPs <- data$Digital/Cost$CGRP_Dig
   
-  # ===========Fix formula below
   N <- nrow(data)
   data$TVads <- adstock(data$TVGRPs, carryOver$co_TV, N)
   data$Radioads <- adstock(data$RadioGRPs, carryOver$co_Radio, N)
   data$OOHads <- adstock(data$OOHGRPs, carryOver$co_OOH, N)
   data$Printads <- adstock(data$PrintGRPs, carryOver$co_Print, N)
   data$Digads <- adstock(data$DigGRPs, carryOver$co_Dig, N)
+  
+  #how to assign this data to an object and call it on function below?
+  
+  df <- data.frame(data$Value,data$Distribution,data$TVads,data$Digads,data$Radioads,
+                   data$OOHads,data$Printads)
 
-  return(data)
+  return(df)
+  
+}
+
+#' Runs Linear TS Regression on Value and media
+LM <- function(df) {
+  TS.fit <- lm(df$Value ~ df$TVads + df$Digads + df$OOHads + df$Radioads + 
+                 df$Printads + df$Distribution, df)
+  
+  coefficients <- data.frame(TS.fit$coefficients)
+  
+  return(coefficients)
 }
 
 
-#' Returns a ggplot scatter plot for TS Regression Value and media
-plot.LM.TS.period <- function(data) {
-  
-  TS.fit <- lm(Value ~ TV + Digital + OOH + Radio + Print + Distribution, data)
-  newData <- data.frame(TS.Sales$TV,TS.Sales$Digital,TS.Sales$OOH,
-                        TS.Sales$Radio,TS.Sales$Print,TS.Sales$Distribution)
+plot.LM.TS.period <- function(TS.fit,newData){
   TS.pred <- predict(TS.fit,newData)
   ggplot(data, aes_string(x=Period)) + geom_line(y = Value,colour = "red") +
     geom_line(y = TS.pred,colour = "blue")
@@ -99,6 +109,7 @@ plot.LM.TS.period <- function(data) {
     theme(axis.text.y = element_text(size = 10,angle = 0)) + 
     labs(y = "Value vs Predict",x = "Period",title = "Value vs fitted")
 }
+
 
 
 
