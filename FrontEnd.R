@@ -125,13 +125,17 @@ ui <- dashboardPage(
               
               
               # Linear regression model output
-              fluidRow(
+              conditionalPanel(
+                condition = "input.category == 'Time series Sales'",
+                fluidRow(
                 column(width = 12,
                        titlePanel("Linear Regression"),
                        "Model coefficients:",
                        dataTableOutput("LM.TS"),
+                       "MSE LM: ",
+                       textOutput("TS.MSE"),
                        "Predicted:",
-                       plotOutput("LM.pred"))
+                       plotOutput("LM.pred")))
               ),
               
               # Ridge regression output
@@ -201,23 +205,40 @@ server <- function(input, output) {
   
   # Plot TS.Value against period
   output$TS.SalesPeriod <- renderPlot({
-    plot.TS.period(read.data(input$file1))
+    if (input$category == "Time series Sales") {
+      plot.TS.period(read.data(input$file1))
+    }
   })
   
   # Pick Cost per GRPs and Carry Over for channels
   output$Adstock <- renderDataTable({
-    TS.Ads.CO(read.data(input$file1), input)
-  }, options = list(scrollX = TRUE))
+    if (input$category == "Time series Sales") {
+      TS.Ads.CO(read.data(input$file1), input)
+    }
+  },
+  options = list(scrollX = TRUE))
   
   # Run Linear regression on TS.Value against period
   output$LM.TS<- renderDataTable({
-    LM(read.data(input$file1), input)
+    if (input$category == "Time series Sales") {
+      LM(read.data(input$file1), input)
+    }
+  })
+  
+  # Calculate MSE for LM
+  output$TS.MSE<- renderText({
+    if (input$category == "Time series Sales") {
+      MSE.LM(read.data(input$file1), input)
+    }
   })
   
   # Plot LM predictions
   output$LM.pred<- renderPlot({
-    plot.LM(read.data(input$file1), input)
+    if (input$category == "Time series Sales") {
+      plot.LM(read.data(input$file1), input)
+    }
   })
+  
   
   
 }

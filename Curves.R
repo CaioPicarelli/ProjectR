@@ -271,6 +271,8 @@ summary(gam.m2)
 # Making Predictions with GAM
 preds = predict(gam.m2, newdata = Value)
 
+
+
 #TESTING===============================================================
 #Times Series Download
 setwd("~/Desktop")
@@ -289,6 +291,7 @@ test <- function(data) {
 
 test(TS.Sales)
 
+
 testdf <- function(df) {
   df.fit <- df
   return(df.fit)
@@ -298,7 +301,6 @@ testdf(TS.Sales)
 test(TS.Sales)
 
 Pica <- function(cock) {
-  
   if (cock > 0) {
     result <- "Pau no CU"
   }
@@ -308,11 +310,8 @@ Pica <- function(cock) {
   else {
     result <- "deu merda"
   }
-  
   df <- data.frame(result)
   return(df)
-  
-  
 }
   
 Pica(10)

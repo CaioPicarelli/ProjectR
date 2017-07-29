@@ -1,5 +1,6 @@
 
 library(ggplot2)
+library(glmnet)
 rm(list=ls())
 
 #' Returns a ggplot scatter plot for chosen explanatory variables
@@ -100,7 +101,7 @@ LM <- function(data, input) {
 }
 
 #' Get Predictions and Error from LM =======================================
-pred.LM <- function(data, input) {
+MSE.LM <- function(data, input) {
   df <- TS.Ads.CO(data, input)
   TS.fit <- lm(data.Value ~ data.TVads + data.Digads + data.OOHads + data.Radioads + 
                  data.Printads + data.Distribution, df)
@@ -114,11 +115,11 @@ pred.LM <- function(data, input) {
   
   pred <- predict(TS.fit,pred.data,se=TRUE)
   
-  MSE.LM <- mean(data.Value - predict(TS.fit,pred.data))^2
+  MSE <- mean(df$data.Value - predict(TS.fit,pred.data))^2
   
   coefficients <- data.frame(c("Intercept","TV","Digital","OOH",
                                "Radio","Print","Distribution"),TS.fit$coefficients)
-  return(MSE.LM)
+  return(MSE)
 }
 
   # Get plot of observed and fitted =======================================
@@ -143,6 +144,21 @@ plot.LM <- function(data,input){
     theme(axis.text.y = element_text(size = 10,angle = 0)) + 
     labs(y = "Value vs Predict",x = "Period",title = "Value vs fitted")
 }
+
+ # Ridge Regression on Input
+LM.Ridge <- function(data,input){
+  
+  df <- TS.Ads.CO(data, input)
+  x <- model.matrix(df$data.Value ~ df$data.TVads + data.Digads + data.OOHads + data.Radioads + 
+                      data.Printads + data.Distribution,df)[,-1]
+  y <- df$data.Value
+  grid = 10^seq(10,-2,length=100)
+  ridge <- glmnet(x, y, alpha=0, lambda = grid)
+  
+  return()
+}
+
+
 
 
 
