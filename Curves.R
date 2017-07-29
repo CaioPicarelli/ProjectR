@@ -275,6 +275,7 @@ preds = predict(gam.m2, newdata = Value)
 #Times Series Download
 setwd("~/Desktop")
 TS.Sales<- read.csv("TS-Sales.csv",sep = ",",header = T)
+TS.Sales$Period <- as.Date(TS.Sales$Period, format="%d/%m/%Y")
 attach(TS.Sales)
 
 
@@ -283,8 +284,10 @@ test <- function(data) {
   newData <- data.frame(data$TV,data$Digital,data$OOH,data$Radio,data$Print
                         ,data$Distribution)
   
-  df <- TS.fit$residuals
+  df <- TS.fit$coefficients
   return(df)}
+
+test(TS.Sales)
 
 testdf <- function(df) {
   df.fit <- df

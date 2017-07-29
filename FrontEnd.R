@@ -130,14 +130,17 @@ ui <- dashboardPage(
                        titlePanel("Linear Regression"),
                        "Model coefficients:",
                        dataTableOutput("LM.TS"),
-                       "Spend Curve:",
-                       plotOutput(""))
+                       "Predicted:",
+                       plotOutput("LM.pred"))
               ),
               
               # Ridge regression output
               fluidRow(
                 column(width = 12,
-                       titlePanel("Ridge Regression"))
+                       titlePanel("Ridge Regression"))),
+              fluidRow(
+                titlePanel("Predicticted"),
+                plotOutput("")
               )
             ))
 
@@ -151,7 +154,12 @@ source("Models.R")
 read.data <- function(inFile) {
   if (is.null(inFile)) 
     return(NULL)
-  read.csv(inFile$datapath, header = T)
+  data <- read.csv(inFile$datapath, header = T)
+  if("Period" %in% names(data)) {
+    data$Period <- as.Date(data$Period, format="%d/%m/%Y")
+  }
+  
+  return(data)
 }
 
 server <- function(input, output) {
@@ -201,9 +209,14 @@ server <- function(input, output) {
     TS.Ads.CO(read.data(input$file1), input)
   }, options = list(scrollX = TRUE))
   
-  # # Run Linear regression on TS.Value against period
+  # Run Linear regression on TS.Value against period
   output$LM.TS<- renderDataTable({
-    LM(read.data(df))
+    LM(read.data(input$file1), input)
+  })
+  
+  # Plot LM predictions
+  output$LM.pred<- renderPlot({
+    plot.LM(read.data(input$file1), input)
   })
   
   
