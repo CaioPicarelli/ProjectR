@@ -145,7 +145,7 @@ plot.LM <- function(data,input){
     labs(y = "Value vs Predict",x = "Period",title = "Value vs fitted")
 }
 
- # Ridge Regression on Input
+ # Ridge Regression on Input.
 LM.Ridge <- function(data,input){
   
   df <- TS.Ads.CO(data, input)
@@ -153,11 +153,25 @@ LM.Ridge <- function(data,input){
                       data.Printads + data.Distribution,df)[,-1]
   y <- df$data.Value
   grid = 10^seq(10,-2,length=100)
-  ridge <- glmnet(x, y, alpha=0, lambda = grid)
   
+  'splitting sets into training and testing'
+  set.seed (1)
+  train = sample(1:nrow(x), nrow(x)/2)
+  test = (-train)
+  y.test = y[test]
   
+  ridge <- glmnet(x[train,], y[train], alpha=0, lambda=grid, thresh =1e-12)
+  cv.out <- cv.glmnet(x[train,], y[train], alpha=0)
   
-  return()
+  #names
+  cv.out.df <- data.frame(cv.out$lambda,cv.out$cvm)
+  names(cv.out.df)[1] <- paste("lambda")
+  names(cv.out.df)[2] <- paste("cvm")
+  
+  bestlam = cv.out$lambda.min
+
+ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red")
+
 }
 
 

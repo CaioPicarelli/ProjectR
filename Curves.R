@@ -131,7 +131,7 @@ x=model.matrix(CS_Sales_BestSS$CS_Sales.Value ~ .,CS_Sales_BestSS)[,-1]
 y=CS_Sales_BestSS$CS_Sales.Value
 library(glmnet)
 
-grid=10^seq(10,-2,length=100)
+grid = 10^seq(10,-2,length=100)
 ridge.mod <- glmnet(x,y,alpha=0,lambda=grid)
 dim(coef(ridge.mod))
 
@@ -300,21 +300,7 @@ testdf(TS.Sales)
 
 test(TS.Sales)
 
-Pica <- function(cock) {
-  if (cock > 0) {
-    result <- "Pau no CU"
-  }
-  else if (cock < 0 ){
-    result <- "suck my dick"
-  }
-  else {
-    result <- "deu merda"
-  }
-  df <- data.frame(result)
-  return(df)
-}
-  
-Pica(10)
+
 
 
 

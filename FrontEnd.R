@@ -135,17 +135,20 @@ ui <- dashboardPage(
                        "MSE LM: ",
                        textOutput("TS.MSE"),
                        "Predicted:",
-                       plotOutput("LM.pred")))
-              ),
+                       plotOutput("LM.pred"))),
+              
               
               # Ridge regression output
               fluidRow(
                 column(width = 12,
-                       titlePanel("Ridge Regression"))),
+                       titlePanel("Ridge Regression"),
+                       plotOutput("TS.Ridge"))),
+              
+              # 
               fluidRow(
-                titlePanel("Predicticted"),
+                titlePanel(""),
                 plotOutput("")
-              )
+              ))
             ))
 
     )))
@@ -236,6 +239,13 @@ server <- function(input, output) {
   output$LM.pred<- renderPlot({
     if (input$category == "Time series Sales") {
       plot.LM(read.data(input$file1), input)
+    }
+  })
+  
+  # Plot TS Ridge Regression
+  output$TS.Ridge<- renderPlot({
+    if (input$category == "Time series Sales") {
+      LM.Ridge(read.data(input$file1), input)
     }
   })
   
