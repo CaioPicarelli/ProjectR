@@ -20,7 +20,7 @@ ui <- dashboardPage(
       menuItem("Model", tabName = "modelOutput", icon = icon("flask"))
       
       )),
-      
+        
   dashboardBody(
     
     tabItems(
@@ -50,9 +50,13 @@ ui <- dashboardPage(
               titlePanel("Uploaded CSV data"),
               dataTableOutput('CSVfigures'))),
     
+  
+    
     # Data table with adstocks======================================================
     tabItem(tabName = "adstocks",
             fluidPage(
+              conditionalPanel(
+                condition = "input.category == 'Time series Sales'",
               titlePanel("Transformation from Costs to Adstocks"),
               
               # input Cost per GRP and Carry Over
@@ -101,13 +105,15 @@ ui <- dashboardPage(
               fluidRow(
               h4("Data with Adstocks"),
               dataTableOutput("Adstock")))
-              ),
+              )),
               
 
     # Data visualizations page======================================================
     tabItem(tabName = "visualization",
             fluidPage(
               titlePanel("Data Visualisation"),
+              conditionalPanel(
+                condition = "input.category == 'Time series Sales'",
               fluidRow(
                 box(plotOutput("explanatoryVariablesPlot")),
                 box(plotOutput("TS.SalesPeriod")),
@@ -116,7 +122,15 @@ ui <- dashboardPage(
               fluidRow(
                 box(title = "",
                 radioButtons("explanatory", "Explanatory Variables:", 
-                             c("TV", "Radio", "OOH","Digital","Print")))))),
+                             c("TV", "Radio", "OOH","Digital","Print"))))),
+              
+              
+              conditionalPanel(
+                condition = "input.category == 'Cross-sectional Sales'",
+              fluidRow(
+                box(plotOutput(""))
+              )
+              ))),
     
     # Model output page======================================================
     tabItem(tabName = "modelOutput",
@@ -150,7 +164,15 @@ ui <- dashboardPage(
               ))
             ))
 
-    )))
+
+
+
+
+
+
+
+# Close bracket of UI:
+  )))
        
 #===============================SERVER======================================================
 
@@ -191,6 +213,8 @@ server <- function(input, output) {
     read.data(input$file1)
   })
   
+  # ================================= Time Series Sales Edit=================== 
+
   # Data table with Adstocks
   output$TS.Sales.Ads <- renderDataTable({
     read.data(input$TS.Sales.Ads)
@@ -252,6 +276,15 @@ server <- function(input, output) {
   output$TS.Lasso<- renderPlot({
     if (input$category == "Time series Sales") {
       LM.Lasso(read.data(input$file1), input)
+    }
+  })
+  
+# ================================= Cross Sectional Sales Edit===================  
+  
+  # Plot CS Media Spends
+  output$CS.Media.Spends<- renderPlot({
+    if (input$category == "Cross-sectional Sales") {
+      CS.plot.Spends(read.data(input$file1), input)
     }
   })
   

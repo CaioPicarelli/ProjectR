@@ -200,6 +200,15 @@ LM.Lasso <- function(data,input){
 }
 
 
+# =========================CROSS SECTIONAL ===============================================
+
+#' Returns a ggplot scatter plot for chosen explanatory variables
+CS.plot.Spends <- function(data) {
+  
+  ggplot(data, aes(x=TV)) + geom_col()
+
+}
+
 
 
 

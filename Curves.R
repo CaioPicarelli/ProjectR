@@ -15,8 +15,8 @@ library(corrplot)
 library(leaps)
 setwd("~/Desktop")
 
-CS_Sales<- read.csv("CS-Sales.csv",sep = ",",header = T)
-attach(CS_Sales)
+CS<- read.csv("CS-Sales.csv",sep = ",",header = T)
+attach(CS)
 
 
 #Data Check
@@ -279,7 +279,14 @@ TS.Sales<- read.csv("TS-Sales.csv",sep = ",",header = T)
 TS.Sales$Period <- as.Date(TS.Sales$Period, format="%d/%m/%Y")
 attach(TS.Sales)
 
+# Share per period
+for (i in 1:nrow(TS.Sales)) {
+TS.Sales$ValueProp[i] <- TS.Sales$Value[i]/sum(TS.Sales$Value)
+}
 
+test <- lm(logit(TS.Sales$ValueProp) ~ TS.Sales$TV + TS.Sales$Radio, TS.Sales)
+
+summary(test)
 
 
 
