@@ -15,8 +15,8 @@ library(corrplot)
 library(leaps)
 setwd("~/Desktop")
 
-CS.Sales<- read.csv("CS-Sales.csv",sep = ",",header = T)
-attach(CS.Sales)
+CS_Sales<- read.csv("CS-Sales.csv",sep = ",",header = T)
+attach(CS_Sales)
 
 
 #Data Check

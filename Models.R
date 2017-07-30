@@ -155,6 +155,8 @@ LM.Ridge <- function(data,input){
   grid = 10^seq(10,-2,length=100)
   ridge <- glmnet(x, y, alpha=0, lambda = grid)
   
+  
+  
   return()
 }
 
