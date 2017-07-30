@@ -136,18 +136,17 @@ ui <- dashboardPage(
                        textOutput("TS.MSE"),
                        "Predicted:",
                        plotOutput("LM.pred"))),
-              
-              
+
               # Ridge regression output
               fluidRow(
                 column(width = 12,
                        titlePanel("Ridge Regression"),
                        plotOutput("TS.Ridge"))),
               
-              # 
+              # Lasso Regression Output
               fluidRow(
-                titlePanel(""),
-                plotOutput("")
+                titlePanel("Lasso"),
+                plotOutput("TS.Lasso")
               ))
             ))
 
@@ -249,7 +248,12 @@ server <- function(input, output) {
     }
   })
   
-  
+  # Plot TS Lasso Regression
+  output$TS.Lasso<- renderPlot({
+    if (input$category == "Time series Sales") {
+      LM.Lasso(read.data(input$file1), input)
+    }
+  })
   
 }
 

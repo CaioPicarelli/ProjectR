@@ -272,36 +272,12 @@ summary(gam.m2)
 preds = predict(gam.m2, newdata = Value)
 
 
+# TS Model with non linear regression ===================================================
 
-#TESTING===============================================================
-#Times Series Download
 setwd("~/Desktop")
 TS.Sales<- read.csv("TS-Sales.csv",sep = ",",header = T)
 TS.Sales$Period <- as.Date(TS.Sales$Period, format="%d/%m/%Y")
 attach(TS.Sales)
-
-
-test <- function(data) {
-  TS.fit <- lm(Value ~ TV + Digital + OOH + Radio + Print + Distribution, data)
-  newData <- data.frame(data$TV,data$Digital,data$OOH,data$Radio,data$Print
-                        ,data$Distribution)
-  
-  df <- TS.fit$coefficients
-  return(df)}
-
-test(TS.Sales)
-
-
-testdf <- function(df) {
-  df.fit <- df
-  return(df.fit)
-}
-testdf(TS.Sales)
-
-test(TS.Sales)
-
-
-
 
 
 

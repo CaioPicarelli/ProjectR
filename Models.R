@@ -117,8 +117,6 @@ MSE.LM <- function(data, input) {
   
   MSE <- mean(df$data.Value - predict(TS.fit,pred.data))^2
   
-  coefficients <- data.frame(c("Intercept","TV","Digital","OOH",
-                               "Radio","Print","Distribution"),TS.fit$coefficients)
   return(MSE)
 }
 
@@ -160,8 +158,8 @@ LM.Ridge <- function(data,input){
   test = (-train)
   y.test = y[test]
   
-  ridge <- glmnet(x[train,], y[train], alpha=0, lambda=grid, thresh =1e-12)
-  cv.out <- cv.glmnet(x[train,], y[train], alpha=0)
+  ridge <- glmnet(x[train,], y[train], alpha=0, lambda = grid, thresh =1e-12)
+  cv.out <- cv.glmnet(x[train,], y[train], alpha = 0)
   
   #names
   cv.out.df <- data.frame(cv.out$lambda,cv.out$cvm)
@@ -170,9 +168,37 @@ LM.Ridge <- function(data,input){
   
   bestlam = cv.out$lambda.min
 
-ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red")
-
+ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red",size = 3)
 }
+
+# Run Lasso TS data
+LM.Lasso <- function(data,input){
+  
+  df <- TS.Ads.CO(data, input)
+  x <- model.matrix(df$data.Value ~ df$data.TVads + data.Digads + data.OOHads + data.Radioads + 
+                      data.Printads + data.Distribution,df)[,-1]
+  y <- df$data.Value
+  grid = 10^seq(10,-2,length=100)
+  
+  'splitting sets into training and testing'
+  set.seed (1)
+  train = sample(1:nrow(x), nrow(x)/2)
+  test = (-train)
+  y.test = y[test]
+  
+  set.seed(1)
+  cv.out <- cv.glmnet(x[train,],y[train],alpha = 1)
+  
+  #names
+  cv.out.df <- data.frame(cv.out$lambda,cv.out$cvm)
+  names(cv.out.df)[1] <- paste("lambda")
+  names(cv.out.df)[2] <- paste("cvm")
+  
+  bestlam = cv.out$lambda.min
+  
+  ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red",size = 3)
+}
+
 
 
 
