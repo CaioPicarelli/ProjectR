@@ -23,8 +23,8 @@ attach(CS)
 dim(CS_Sales)
 
 #Correlation Matrix
-CS.Corr <- data.frame(CS.Sales$Value,CS.Sales$TV,CS.Sales$Digital,
-                      CS.Sales$OOH,CS.Sales$Radio,CS.Sales$Print,CS.Sales$Distribution)
+CS.Corr <- data.frame(CS$Value,CS$TV,CS$Digital,
+                      CS$OOH,CS$Radio,CS$Print,CS$Distribution)
 
 CS.Corr <- corrplot.mixed(corr=cor(CS.Corr,use="complete.obs"),upper="ellipse",tl.pos = "lt")
 

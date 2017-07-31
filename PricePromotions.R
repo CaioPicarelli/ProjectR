@@ -137,10 +137,11 @@ Example <- ggplot(plot.data, aes(week, sales.volume, color=brand)) +
   geom_line(data=US, aes(Week, (El + 0.03)/0.0005), color="green") +
   scale_y_continuous(sec.axis = sec_axis(~.*0.0005 - 0.03, name = "Elasticity"))
 
+Example
 
-
-
-
+# 'Get the data Out'
+setwd("~/Desktop")
+write.csv("store.df",file = "PP.csv",row.names = 1)
 
 
 

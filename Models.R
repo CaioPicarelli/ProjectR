@@ -202,15 +202,31 @@ LM.Lasso <- function(data,input){
 
 # =========================CROSS SECTIONAL ===============================================
 
-#' Returns a ggplot scatter plot for chosen explanatory variables
-CS.plot.Spends <- function(data) {
-  
-  ggplot(data, aes(x=TV)) + geom_col()
-
+#' Returns Spends by media for each brand in Category
+CS.Spends <- function(data,variable) {
+  ggplot(data, aes_string(x=variable, y="Value")) + geom_point()
 }
 
+# Return data with Spends column summing all spends across channels
+CS.SUM.Spends <- function(data) {
+  data$Spends <- data$TV + data$Radio +data$Print + data$Digital + data$OOH
+  return(data)
+}
+
+# Linear model with all channels
+# CS.lm <- function(data) {
+#   CS.lm <- lm(Value ~ Volume + TV + OOH + Print + Digital
+#                + Radio + Distribution,data = CS_Sales)
+#   summary(CS_Model)
+#   
+#   MSE_CS_Media <- mean(Value-predict(CS_Model,CS_Sales))^2
+#   MSE_CS_Media
+# }
 
 
+
+
+# =========================PRICE AND PROMOTIONS ===========================================
 
 
 

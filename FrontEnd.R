@@ -115,9 +115,9 @@ ui <- dashboardPage(
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
               fluidRow(
-                box(plotOutput("explanatoryVariablesPlot")),
-                box(plotOutput("TS.SalesPeriod")),
-                box(plotOutput("explanatoryVariablesHistogram"))
+                box(plotOutput("")),
+                box(plotOutput("")),
+                box(plotOutput(""))
               ),
               fluidRow(
                 box(title = "",
@@ -128,9 +128,17 @@ ui <- dashboardPage(
               conditionalPanel(
                 condition = "input.category == 'Cross-sectional Sales'",
               fluidRow(
-                box(plotOutput(""))
-              )
-              ))),
+                box(title="",
+                radioButtons("explanatory", "Pick one Channel:", 
+                             c("TV", "Radio", "OOH","Digital","Print")))),
+              fluidRow(
+                title = "Plot of Values and Media Spends",
+                box(plotOutput("CS.Spends.Brand"))),
+              
+              fluidPage(
+                titlePanel("Uploaded CSV data"),
+                dataTableOutput('CStotalSpends'))))),
+    
     
     # Model output page======================================================
     tabItem(tabName = "modelOutput",
@@ -166,11 +174,6 @@ ui <- dashboardPage(
 
 
 
-
-
-
-
-
 # Close bracket of UI:
   )))
        
@@ -193,21 +196,20 @@ read.data <- function(inFile) {
 server <- function(input, output) {
   
   # Explanatory variables chart
-  output$explanatoryVariablesPlot <- renderPlot({
-    plot.explanatory.variable(
-      read.data(input$file1),
-      input$explanatory
-    )
-  })
+  # output$explanatoryVariablesPlot <- renderPlot({
+  #   plot.explanatory.variable(
+  #     read.data(input$file1),
+  #     input$explanatory)
+  # })
   
   # Explanatory variables histogram
-  output$explanatoryVariablesHistogram <- renderPlot({
-    plot.explanatory.histogram(
-      read.data(input$file1),
-      input$explanatory
-    )
-  })
-  
+  # output$explanatoryVariablesHistogram <- renderPlot({
+  #   plot.explanatory.histogram(
+  #     read.data(input$file1),
+  #     input$explanatory
+  #   )
+  # })
+  # 
   # Data table as Input
   output$CSVfigures <- renderDataTable({
     read.data(input$file1)
@@ -282,11 +284,20 @@ server <- function(input, output) {
 # ================================= Cross Sectional Sales Edit===================  
   
   # Plot CS Media Spends
-  output$CS.Media.Spends<- renderPlot({
+  output$CS.Spends.Brand<- renderPlot({
     if (input$category == "Cross-sectional Sales") {
-      CS.plot.Spends(read.data(input$file1), input)
+      CS.Spends(read.data(input$file1), input$explanatory)
     }
   })
+  
+  # Get total spends across channels
+  output$CStotalSpends <- renderDataTable({
+    if (input$category == "Cross-sectional Sales") {
+      CS.SUM.Spends((read.data(input$file1)))
+    }
+  })
+  
+
   
 }
 
