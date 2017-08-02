@@ -50,8 +50,6 @@ ui <- dashboardPage(
               titlePanel("Uploaded CSV data"),
               dataTableOutput('CSVfigures'))),
     
-  
-    
     # Data table with adstocks======================================================
     tabItem(tabName = "adstocks",
             fluidPage(
@@ -129,7 +127,7 @@ ui <- dashboardPage(
                 condition = "input.category == 'Cross-sectional Sales'",
               fluidRow(
                 box(title="",
-                radioButtons("explanatory", "Pick one Channel:", 
+                radioButtons("CS.explanatory", "Pick one Channel:", 
                              c("TV", "Radio", "OOH","Digital","Print")))),
               fluidRow(
                 title = "Plot of Values and Media Spends",
@@ -169,7 +167,15 @@ ui <- dashboardPage(
               fluidRow(
                 titlePanel("Lasso"),
                 plotOutput("TS.Lasso")
-              ))
+              )),
+              
+              # CS Linear Model with all Spends
+              conditionalPanel(
+                condition = "input.category == 'Cross-sectional Sales'",
+                fluidRow(
+                column(width = 12,
+                titlePanel("Linear Regression with all Spends"),
+                dataTableOutput("LM.CS"))))
             ))
 
 
@@ -286,7 +292,7 @@ server <- function(input, output) {
   # Plot CS Media Spends
   output$CS.Spends.Brand<- renderPlot({
     if (input$category == "Cross-sectional Sales") {
-      CS.Spends(read.data(input$file1), input$explanatory)
+      CS.Spends(read.data(input$file1), input$CS.explanatory)
     }
   })
   
@@ -297,6 +303,12 @@ server <- function(input, output) {
     }
   })
   
+  # LM model with CS and Spends
+  output$LM.CS <- renderDataTable({
+    if (input$category == "Cross-sectional Sales") {
+      CS.lm((read.data(input$file1)))
+    }
+  })
 
   
 }

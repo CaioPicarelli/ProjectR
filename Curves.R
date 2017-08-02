@@ -18,6 +18,22 @@ setwd("~/Desktop")
 CS<- read.csv("CS-Sales.csv",sep = ",",header = T)
 attach(CS)
 
+CS$Spends <- CS$TV + CS$Radio +CS$Print + CS$Digital + CS$OOH
+lm <- lm(Value ~ Volume + Spends + Distribution,CS)
+summary(lm)
+
+coeff <- summary(lm)$coefficients
+coeff <- as.data.frame(coeff)
+coeff
+
+
+
+lm.log <- lm(log(Value) ~ log(Volume) + log(Spends) + log(Distribution),CS)
+summary(lm.log)
+
+resulst <- data.frame(lm$coefficients)
+resulst
+
 
 #Data Check
 dim(CS_Sales)

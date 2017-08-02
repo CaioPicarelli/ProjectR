@@ -213,15 +213,15 @@ CS.SUM.Spends <- function(data) {
   return(data)
 }
 
-# Linear model with all channels
-# CS.lm <- function(data) {
-#   CS.lm <- lm(Value ~ Volume + TV + OOH + Print + Digital
-#                + Radio + Distribution,data = CS_Sales)
-#   summary(CS_Model)
-#   
-#   MSE_CS_Media <- mean(Value-predict(CS_Model,CS_Sales))^2
-#   MSE_CS_Media
-# }
+# Linear model with Spends
+CS.lm <- function(data) {
+  CS.SUM.Spends <- function(data)
+  lm <- lm(Value ~ Volume + Spends + Distribution,data)
+  
+  coeff <- summary(lm)$coefficients
+  coeff <- as.data.frame(coeff)
+  return(coeff)
+}
 
 
 
