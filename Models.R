@@ -57,6 +57,7 @@ adstock <- function(GRP, ret.factor, n) {
   return(adstock)
 }
 
+
 # Building new data frame transforming Spends to Adstocks =======================================
 TS.Ads.CO <- function(data, input){
   carryOver <- data.frame(co_TV = input$co_TV,
@@ -75,6 +76,7 @@ TS.Ads.CO <- function(data, input){
   data$PrintGRPs <- data$Print/Cost$CGRP_Print
   data$DigGRPs <- data$Digital/Cost$CGRP_Dig
   
+  # create adstocks
   N <- nrow(data)
   data$TVads <- adstock(data$TVGRPs, carryOver$co_TV, N)
   data$Radioads <- adstock(data$RadioGRPs, carryOver$co_Radio, N)
@@ -82,11 +84,33 @@ TS.Ads.CO <- function(data, input){
   data$Printads <- adstock(data$PrintGRPs, carryOver$co_Print, N)
   data$Digads <- adstock(data$DigGRPs, carryOver$co_Dig, N)
   
+  # dummies for media
+  data$TVd <- ifelse(data$TV == 0, 0,1)
+  data$Radiod <- ifelse(data$Radio == 0, 0,1)
+  data$OOHd <- ifelse(data$OOH == 0, 0,1)
+  data$Printd <- ifelse(data$Print == 0, 0,1)
+  data$Digd <- ifelse(data$Digital == 0, 0,1)
+  
   df <- data.frame(data$Period,data$Value,data$Distribution,data$TVads,data$Digads,data$Radioads,
-                   data$OOHads,data$Printads)
+                   data$OOHads,data$Printads,data$TVd,data$Radiod,data$OOHd,data$Printd,data$Digd)
 
   return(df)
   
+}
+
+# Get Spend Slope for each media = 100 GRPs * Cost per GRPs
+SpendSlope_TS <- function(data,input){
+  df <- TS.Ads.CO(data, input)
+  
+  slope <- data.frame(slope.TV = input$CGRP_TV * 100,
+                       slope.Radio = input$CGRP_Radio * 100,
+                       slope.OOH = input$CGRP_OOH * 100,
+                       slope.Print = input$CGRP_Print * 100,
+                       slope.Dig = input$CGRP_Dig * 100)
+  
+  names(slope) <- c("slope.TV","slope.Radio","slope.OOH","slope.Print","slope.Dig")
+
+  return(slope)
 }
 
 #' Runs Linear TS Regression on Value and media =======================================
@@ -116,6 +140,7 @@ MSE.LM <- function(data, input) {
   pred <- predict(TS.fit,pred.data,se=TRUE)
   
   MSE <- mean(df$data.Value - predict(TS.fit,pred.data))^2
+  
   
   return(MSE)
 }
@@ -200,6 +225,9 @@ LM.Lasso <- function(data,input){
 }
 
 
+
+
+
 # =========================CROSS SECTIONAL ===============================================
 
 #' Returns Spends by media for each brand in Category
@@ -218,9 +246,11 @@ CS.lm <- function(data) {
   CS.SUM.Spends <- function(data)
   lm <- lm(Value ~ Volume + Spends + Distribution,data)
   
-  coeff <- summary(lm)$coefficients
+  coeff <- lm$coefficients
   coeff <- as.data.frame(coeff)
+  
   return(coeff)
+  
 }
 
 

@@ -13,26 +13,41 @@ library(ISLR)
 library(MASS)
 library(corrplot)
 library(leaps)
+library(car)
 setwd("~/Desktop")
 
+# CURVES for CS
 CS<- read.csv("CS-Sales.csv",sep = ",",header = T)
-attach(CS)
 
 CS$Spends <- CS$TV + CS$Radio +CS$Print + CS$Digital + CS$OOH
 lm <- lm(Value ~ Volume + Spends + Distribution,CS)
 summary(lm)
 
-coeff <- summary(lm)$coefficients
-coeff <- as.data.frame(coeff)
-coeff
+pred.data <- CS[,c("Volume","Spends","Distribution")]
+fit.1 <- predict(lm,pred.data,se.fit = TRUE)
 
 
-
-lm.log <- lm(log(Value) ~ log(Volume) + log(Spends) + log(Distribution),CS)
+lm.log <- lm(log(Value) ~ log(Volume) + log(Spends),CS)
 summary(lm.log)
 
-resulst <- data.frame(lm$coefficients)
-resulst
+pred.data <- CS[,c("Volume","Spends")]
+pred.data <- log(pred.data)
+fit.1.log <- predict(lm.log,pred.data,se.fit = TRUE)
+
+MSE.log <- (mean(log(CS$Value) - predict(lm.log,pred.data))^2)
+MSE.log
+
+
+
+ggplot(CS, aes(x=Spends, y = Value)) + 
+  geom_point(colour = "red") + 
+  theme(axis.text.x = element_text(size = 10,angle = 90)) + 
+  theme(axis.text.y = element_text(size = 10,angle = 0)) + 
+  labs(y = "Value vs Predict",x = "Period")
+
+#=================================================================================
+
+
 
 
 #Data Check
@@ -291,18 +306,31 @@ preds = predict(gam.m2, newdata = Value)
 # TS Model with non linear regression ===================================================
 
 setwd("~/Desktop")
-TS.Sales<- read.csv("TS-Sales.csv",sep = ",",header = T)
-TS.Sales$Period <- as.Date(TS.Sales$Period, format="%d/%m/%Y")
-attach(TS.Sales)
+TS <- read.csv("TS-Sales.csv",sep = ",",header = T)
+TS$Period <- as.Date(TS$Period, format="%d/%m/%Y")
+
 
 # Share per period
-for (i in 1:nrow(TS.Sales)) {
-TS.Sales$ValueProp[i] <- TS.Sales$Value[i]/sum(TS.Sales$Value)
+for (i in 1:nrow(TS)) {
+TS$SOM[i] <- TS$Value[i]/sum(TS$Value)
 }
 
-test <- lm(logit(TS.Sales$ValueProp) ~ TS.Sales$TV + TS.Sales$Radio, TS.Sales)
+dummyMedia <- function(data) {
+  if(data[i] == '') {
+    data[i] = 0}
+  else {
+    data[i] = 1}}
 
-summary(test)
+
+for (i in 1:nrow(TS)) {
+  if(TS$TV[i] == '') {
+    TS$TV[i] = 0}
+  else {
+    TS$TV[i] = 1}}
+TS
+TS.glm <- glm(TS$SOM ~ TS$TV,family = binomial, TS)
+
+summary(TS.glm)
 
 
 

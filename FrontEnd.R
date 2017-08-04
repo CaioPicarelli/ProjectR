@@ -115,7 +115,7 @@ ui <- dashboardPage(
               fluidRow(
                 box(plotOutput("")),
                 box(plotOutput("")),
-                box(plotOutput(""))
+                box(dataTableOutput("SpendSlopeTS"))
               ),
               fluidRow(
                 box(title = "",
@@ -219,7 +219,7 @@ server <- function(input, output) {
   # Data table as Input
   output$CSVfigures <- renderDataTable({
     read.data(input$file1)
-  })
+  },options = list(scrollX = TRUE))
   
   # ================================= Time Series Sales Edit=================== 
 
@@ -287,6 +287,13 @@ server <- function(input, output) {
     }
   })
   
+  # Check Spend Slope data for TS
+  output$SpendSlopeTS <- renderDataTable({
+    if (input$category == "Time series Sales") {
+      SpendSlope_TS(read.data(input$file1), input)
+    }
+  })
+  
 # ================================= Cross Sectional Sales Edit===================  
   
   # Plot CS Media Spends
@@ -301,14 +308,17 @@ server <- function(input, output) {
     if (input$category == "Cross-sectional Sales") {
       CS.SUM.Spends((read.data(input$file1)))
     }
-  })
+  },options = list(scrollX = TRUE))
   
   # LM model with CS and Spends
-  output$LM.CS <- renderDataTable({
+  output$LM.CS <- renderText({
     if (input$category == "Cross-sectional Sales") {
       CS.lm((read.data(input$file1)))
     }
   })
+  
+  
+  
 
   
 }
