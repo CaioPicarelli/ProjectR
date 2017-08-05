@@ -309,29 +309,15 @@ setwd("~/Desktop")
 TS <- read.csv("TS-Sales.csv",sep = ",",header = T)
 TS$Period <- as.Date(TS$Period, format="%d/%m/%Y")
 
+Spends <- seq(0,1500000,length.out = 25)
+Spends
 
-# Share per period
-for (i in 1:nrow(TS)) {
-TS$SOM[i] <- TS$Value[i]/sum(TS$Value)
-}
+SpendSlope = 1500000
+SalesMax = 3000000
 
-dummyMedia <- function(data) {
-  if(data[i] == '') {
-    data[i] = 0}
-  else {
-    data[i] = 1}}
+dick <- SalesMax*(1-exp(-Spends/SpendSlope))
 
-
-for (i in 1:nrow(TS)) {
-  if(TS$TV[i] == '') {
-    TS$TV[i] = 0}
-  else {
-    TS$TV[i] = 1}}
-TS
-TS.glm <- glm(TS$SOM ~ TS$TV,family = binomial, TS)
-
-summary(TS.glm)
-
+plot(dick)
 
 
 

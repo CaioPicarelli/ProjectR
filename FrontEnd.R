@@ -112,7 +112,7 @@ ui <- dashboardPage(
               titlePanel("Data Visualisation"),
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
-                dataTableOutput("SpendSlopeTS")
+                dataTableOutput("")
                 
               ),
               
@@ -161,7 +161,10 @@ ui <- dashboardPage(
                        textOutput("TS.MSE"),
                        "Predicted: ",
                        plotOutput("LM.pred"),
-                       dataTableOutput("OLS.du_TS")),
+                       dataTableOutput("OLS.du_TS"),
+                       dataTableOutput("SpendSlopeTS"),
+                       plotOutput("curvesPlot")
+                       ),
 
               # Ridge regression output
                 column(width = 12,
@@ -312,7 +315,12 @@ server <- function(input, output) {
     }
   })
   
-  
+  # GGplot with Curves
+  output$curvesPlot <- renderPlot({
+    if (input$category == "Time series Sales") {
+      Curves(read.data(input$file1), input)
+    }
+  })
   
 # ================================= Cross Sectional Sales Edit===================  
   

@@ -99,29 +99,28 @@ TS.Ads.CO <- function(data, input){
   
 }
 
-# Get Spend Slope for each media = 100 GRPs * Cost per GRPs
-SpendSlope_TS <- function(data,input){
-  df <- TS.Ads.CO(data, input)
-  
-  slope <- data.frame(slope.TV = input$CGRP_TV * 100,
-                       slope.Radio = input$CGRP_Radio * 100,
-                       slope.OOH = input$CGRP_OOH * 100,
-                       slope.Print = input$CGRP_Print * 100,
-                       slope.Dig = input$CGRP_Dig * 100)
-  
-  names(slope) <- c("slope.TV","slope.Radio","slope.OOH","slope.Print","slope.Dig")
-
-  return(slope)
-}
-
 #' Runs OLS TS Regression on Value and media =======================================
 LM <- function(data, input) {
   df <- TS.Ads.CO(data, input)
   TS.fit.du <- lm(data.Value ~ data.TVads + data.Digads + data.OOHads + data.Radioads + 
                  data.Printads + data.Distribution, df)
   
-  coefficients <- data.frame(TS.fit.du$coefficients)
-  return(coefficients)
+  Results <- data.frame(predictor = c("Intercept","TV","Digital","OOH","Radio","Print","Distribution"))
+  coefs <- as.data.frame(summary(TS.fit.du)$coefficients)
+  Results[,names(coefs)] <- coefs
+  
+  return(Results)
+}
+
+# Get Spend Slope for each media = 100 GRPs * Cost per GRPs
+SpendSlope_TS <- function(data,input){
+  df <- TS.Ads.CO(data, input)
+  
+  data.frame(TV = input$CGRP_TV * 100,
+             Radio = input$CGRP_Radio * 100,
+             OOH = input$CGRP_OOH * 100,
+             Print = input$CGRP_Print * 100,
+             Digital = input$CGRP_Dig * 100)
 }
 
 #' Runs OLS TS Regression on Value and DUMMY media =======================================
@@ -129,10 +128,65 @@ TS.OLS.du <- function(data, input) {
   df <- TS.Ads.CO(data, input)
   TS.fit.du <- lm(data.Value ~ data.TVd + data.Digd + data.OOHd + data.Radiod + 
                  data.Printd , df)
-  fit.du <- data.frame(TS.fit.du$coefficients)
   
-  return(fit.du)
+  Results <- data.frame(predictor = c("Intercept","TV","Digital","OOH","Radio","Print"))
+  coefs <- as.data.frame(summary(TS.fit.du)$coefficients)
+  Results[,names(coefs)] <- coefs
+  
+  return(Results)
 }
+
+# Get Spend Slope for each media = 100 GRPs * Cost per GRPs
+SpendSlope_TS <- function(data,input){
+  df <- TS.Ads.CO(data, input)
+  results <- TS.OLS.du(data, input)
+  
+  results[, "Slope"] <-  c(0,
+                          input$CGRP_TV * 100,
+                          input$CGRP_Radio * 100,
+                          input$CGRP_OOH * 100,
+                          input$CGRP_Print * 100,
+                          input$CGRP_Dig * 100)
+  return(results)
+}
+
+neg.exp <- function(sales.max, spend.range, spend.slope) {
+  sales.max*(1 - exp(-spend.range/spend.slope))
+}
+
+Curves <- function(data,input){
+  
+  coeffs <- SpendSlope_TS(data,input)
+  spendsRange <- seq(0,500000,length.out = 25)
+
+  media = c("TV", "Digital", "OOH", "Radio","Print")
+
+  curveData <- NULL
+  for(i in 1:length(media)) {
+    medium <- media[i]
+    curveData <- c(curveData, neg.exp(
+      coeffs$Estimate[i + 1],
+      spendsRange,
+      coeffs$Slope[i + 1]
+    ))
+  }
+  
+  labels <- NULL
+  for(medium in media) {
+    labels <- c(labels, rep(medium, length(spendsRange)))
+  }
+
+  curves <- data.frame(
+    Spend = rep(spendsRange, length(media)),
+    Sales = curveData,
+    Media = labels
+  )
+
+  
+  ggplot(curves, aes(x=Spend,y=Sales, color=Media)) + geom_line()
+}
+
+
 
 #' Get Predictions and Error from LM =======================================
 MSE.LM <- function(data, input) {
@@ -177,6 +231,7 @@ plot.LM <- function(data,input){
     theme(axis.text.y = element_text(size = 10,angle = 0)) + 
     labs(y = "Value vs Predict",x = "Period",title = "Value vs fitted")
 }
+
 
  # Ridge Regression on Input.
 LM.Ridge <- function(data,input){
