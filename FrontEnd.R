@@ -41,7 +41,7 @@ ui <- dashboardPage(
                 column(width = 12,
                        radioButtons("category", "Choose type of model:", 
                                     c("Cross-sectional Sales", "Time series Sales",
-                                      "Times Series Price and Promotions")))))
+                                      "Price and Promotions")))))
             ),
     
     # Data table viewer======================================================
@@ -112,15 +112,9 @@ ui <- dashboardPage(
               titlePanel("Data Visualisation"),
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
-              fluidRow(
-                box(plotOutput("")),
-                box(plotOutput("")),
-                box(dataTableOutput("SpendSlopeTS"))
+                dataTableOutput("SpendSlopeTS")
+                
               ),
-              fluidRow(
-                box(title = "",
-                radioButtons("explanatory", "Explanatory Variables:", 
-                             c("TV", "Radio", "OOH","Digital","Print"))))),
               
               
               conditionalPanel(
@@ -135,7 +129,19 @@ ui <- dashboardPage(
               
               fluidPage(
                 titlePanel("Uploaded CSV data"),
-                dataTableOutput('CStotalSpends'))))),
+                dataTableOutput('CStotalSpends'))),
+              
+              conditionalPanel(
+                condition = "input.category == 'Price and Promotions'",
+              fluidPage(
+                fluidRow(
+                titlePanel("Visualization Price and Promotions"),
+                plotOutput("PP.hist.p1"),
+                plotOutput("PP.hist.p2"),
+                plotOutput("bystore1"),
+                plotOutput("bystore2")
+                
+              ))))),
     
     
     # Model output page======================================================
@@ -147,36 +153,41 @@ ui <- dashboardPage(
               # Linear regression model output
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
-                fluidRow(
                 column(width = 12,
                        titlePanel("Linear Regression"),
                        "Model coefficients:",
                        dataTableOutput("LM.TS"),
                        "MSE LM: ",
                        textOutput("TS.MSE"),
-                       "Predicted:",
-                       plotOutput("LM.pred"))),
+                       "Predicted: ",
+                       plotOutput("LM.pred"),
+                       dataTableOutput("OLS.du_TS")),
 
               # Ridge regression output
-              fluidRow(
                 column(width = 12,
                        titlePanel("Ridge Regression"),
-                       plotOutput("TS.Ridge"))),
+                       plotOutput("TS.Ridge")),
               
               # Lasso Regression Output
-              fluidRow(
                 titlePanel("Lasso"),
                 plotOutput("TS.Lasso")
-              )),
+              ),
               
               # CS Linear Model with all Spends
               conditionalPanel(
                 condition = "input.category == 'Cross-sectional Sales'",
-                fluidRow(
                 column(width = 12,
                 titlePanel("Linear Regression with all Spends"),
-                dataTableOutput("LM.CS"))))
-            ))
+                dataTableOutput("LM.CS")))
+            ),
+            
+              conditionalPanel(
+                condition = "input.category == 'Price and Promotions'",
+                titlePanel(""),
+                plotOutput("")
+                
+              )
+            )
 
 
 
@@ -294,6 +305,15 @@ server <- function(input, output) {
     }
   })
   
+  # Check OLS for TS with Dummies
+  output$OLS.du_TS <- renderDataTable({
+    if (input$category == "Time series Sales") {
+      TS.OLS.du(read.data(input$file1), input)
+    }
+  })
+  
+  
+  
 # ================================= Cross Sectional Sales Edit===================  
   
   # Plot CS Media Spends
@@ -317,9 +337,35 @@ server <- function(input, output) {
     }
   })
   
+  # ===========================Price and Promotions Edit=============================
   
+  # Price and Promotions histogram for product 1
+  output$PP.hist.p1 <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      hist.p1((read.data(input$file1)))
+    }
+  })
   
-
+  # Price and Promotions histogram for product 2
+  output$PP.hist.p2 <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      hist.p2((read.data(input$file1)))
+    }
+  })
+  
+  # Price and Promotions distribution by shop - 1
+  output$bystore1 <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      store.dist1((read.data(input$file1)))
+    }
+  })
+  
+  # Price and Promotions distribution by shop - 2
+  output$bystore2 <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      store.dist2((read.data(input$file1)))
+    }
+  })
   
 }
 
