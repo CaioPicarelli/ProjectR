@@ -185,6 +185,7 @@ ui <- dashboardPage(
                 dataTableOutput("cs.stats"),
                 dataTableOutput("CS.log"),
                 dataTableOutput("cs.log.stats"),
+                textInput("selectedBrand",label = "Type Brand Name: ",value = "Brand1"),
                 plotOutput("cs.log.plot")))
             ),
             
@@ -359,7 +360,7 @@ server <- function(input, output) {
     # CS-CURVE - GGPLOT log-log Value and Spends
     output$cs.log.plot <- renderPlot({
       if (input$category == "Cross-sectional Sales") {
-        CS.ggplot.line(read.data(input$file1))
+        CS.ggplot.line(read.data(input$file1), input$selectedBrand)
       }
     }) 
   

@@ -32,7 +32,7 @@ fit.1 <- predict(lm,pred.data,se.fit = TRUE)
 lm.log <- lm(log(Value) ~ log(Volume) + log(Spends) + log(Distribution),CS)
 summary(lm.log)
 
-lm.log.cock <- lm(log(Value) ~ log(Spends),CS)
+lm.log.cock <- lm(log(Value) ~ log(Spends), CS)
 summary(lm.log.cock)
 
 
@@ -44,14 +44,12 @@ MSE
 
 summary(lm.log)$r.squared
 
+brand <- "Brand4"
+CS$Selected <- CS$Brand == brand
 
-
-ggplot(CS,aes(x=Spends,y=Value)) + 
+ggplot(CS,aes(x=Spends,y=Value, color=(Brand == brand))) + 
   geom_point() + 
   geom_line(aes(y=exp(lm.log.cock$fitted.values)))
-
-
-
 
 
 ggplot(CS, aes(x=Spends, y = Value)) + 

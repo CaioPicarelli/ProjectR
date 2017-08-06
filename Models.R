@@ -358,11 +358,13 @@ CS.log.MSE.R <- function(data) {
 }
 
 # Plot Regression Curve between Value ~ Spends
-CS.ggplot.line <- function(data) {
+CS.ggplot.line <- function(data, selectedBrand) {
   total.spends <- CS.SUM.Spends(data)
   CS.log.Linear <- lm(log(Value) ~ log(Spends), total.spends)
   
-  ggplot(total.spends,aes(x=Spends,y=Value)) + geom_point() +
+  ggplot(total.spends,aes(x=Spends,y=Value,
+                          color=(Brand == selectedBrand))) + 
+    geom_point() +
     geom_line(aes(y=exp(CS.log.Linear$fitted.values)))
 }
 
