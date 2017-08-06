@@ -20,22 +20,37 @@ setwd("~/Desktop")
 CS<- read.csv("CS-Sales.csv",sep = ",",header = T)
 
 CS$Spends <- CS$TV + CS$Radio +CS$Print + CS$Digital + CS$OOH
-lm <- lm(Value ~ Volume + Spends + Distribution,CS)
+bla <- lm(Value ~ Volume + Spends + Distribution,CS)
 summary(lm)
+coeffs <- as.data.frame(summary(bla)$coefficients)
+coeffs
 
 pred.data <- CS[,c("Volume","Spends","Distribution")]
 fit.1 <- predict(lm,pred.data,se.fit = TRUE)
 
 
-lm.log <- lm(log(Value) ~ log(Volume) + log(Spends),CS)
+lm.log <- lm(log(Value) ~ log(Volume) + log(Spends) + log(Distribution),CS)
 summary(lm.log)
 
-pred.data <- CS[,c("Volume","Spends")]
-pred.data <- log(pred.data)
-fit.1.log <- predict(lm.log,pred.data,se.fit = TRUE)
+lm.log.cock <- lm(log(Value) ~ log(Spends),CS)
+summary(lm.log.cock)
 
-MSE.log <- (mean(log(CS$Value) - predict(lm.log,pred.data))^2)
-MSE.log
+
+cs.log <- data.frame(Volume=log(CS$Volume),Spends=log(CS$Spends),Distribution = log(CS$Distribution))
+cs.log
+
+MSE <- mean((log(CS$Value) - predict(lm.log,cs.log))^2)
+MSE
+
+summary(lm.log)$r.squared
+
+
+
+ggplot(CS,aes(x=Spends,y=Value)) + 
+  geom_point() + 
+  geom_line(aes(y=exp(lm.log.cock$fitted.values)))
+
+
 
 
 

@@ -154,8 +154,10 @@ neg.exp <- function(sales.max, spend.range, spend.slope) {
   sales.max*(1 - exp(-spend.range/spend.slope))
 }
 
+ # Build curves out of regression of dummy variables
 Curves <- function(data,input){
   
+  # Range of spends for chart
   coeffs <- SpendSlope_TS(data,input)
   spendsRange <- seq(0,500000,length.out = 25)
 
@@ -289,11 +291,6 @@ LM.Lasso <- function(data,input){
   ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red",size = 3)
 }
 
-  
-
-
-
-
 
 # =========================CROSS SECTIONAL ===============================================
 
@@ -308,19 +305,66 @@ CS.SUM.Spends <- function(data) {
   return(data)
 }
 
-# Linear model with Spends
+# Linear model with Total Spends
 CS.lm <- function(data) {
-  CS.SUM.Spends <- function(data)
-  lm <- lm(Value ~ Volume + Spends + Distribution,data)
+  total.spends <- CS.SUM.Spends(data)
+  CS.Linear <- lm(Value ~ Volume + Spends + Distribution, total.spends)
   
-  coeff <- lm$coefficients
-  coeff <- as.data.frame(coeff)
+  Results.cs <- data.frame(predictor = c("Intercept","Volume","Spends","Distribution"))
+  coeffs <- as.data.frame(summary(CS.Linear)$coefficients)
+  Results.cs[,names(coeffs)] <- coeffs
   
-  return(coeff)
-  
+  return(Results.cs)
 }
 
+# Stats from Linear model with Total Spends
+CS.lm.MSE.R <- function(data) {
+  total.spends <- CS.SUM.Spends(data)
+  CS.Linear <- lm(Value ~ Volume + Spends + Distribution, total.spends)
+    
+    pred.data <- total.spends[,c("Volume","Spends","Distribution")]
+    MSE <- mean((total.spends$Value - predict(CS.Linear,pred.data))^2)
+    Rsqr <- summary(CS.Linear)$r.squared
+    
+    stats <- data.frame(MSE = MSE,Rsqr = Rsqr)
+  return(stats)
+}
 
+# Log-Log model with Total Spends
+CS.log.lm <- function(data) {
+  total.spends <- CS.SUM.Spends(data)
+  CS.log.Linear <- lm(log(Value) ~ log(Volume) + log(Spends) + log(Distribution), total.spends)
+  
+  Results.log.cs <- data.frame(predictor = c("log(Intercept)","log(Volume)","log(Spends)","log(Distribution)"))
+  coeffs <- as.data.frame(summary(CS.log.Linear)$coefficients)
+  Results.log.cs[,names(coeffs)] <- coeffs
+  
+  return(Results.log.cs)
+}
+
+# Stats from Log-Log model with Total Spends
+CS.log.MSE.R <- function(data) {
+  total.spends <- CS.SUM.Spends(data)
+  CS.log.Linear <- lm(log(Value) ~ log(Volume) + log(Spends) + log(Distribution), total.spends)
+  
+  pred.data <- data.frame(Volume = log(total.spends$Volume),Spends = log(total.spends$Spends),
+                          Distribution = log(total.spends$Distribution))
+  
+  MSE <- mean((total.spends$Value - predict(CS.log.Linear,pred.data))^2)
+  Rsqr <- summary(CS.log.Linear)$r.squared
+  
+  stats <- data.frame(MSE = MSE,Rsqr = Rsqr)
+  return(stats)
+}
+
+# Plot Regression Curve between Value ~ Spends
+CS.ggplot.line <- function(data) {
+  total.spends <- CS.SUM.Spends(data)
+  CS.log.Linear <- lm(log(Value) ~ log(Spends), total.spends)
+  
+  ggplot(total.spends,aes(x=Spends,y=Value)) + geom_point() +
+    geom_line(aes(y=exp(CS.log.Linear$fitted.values)))
+}
 
 
 # =========================PRICE AND PROMOTIONS ===========================================

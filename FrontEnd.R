@@ -176,12 +176,16 @@ ui <- dashboardPage(
                 plotOutput("TS.Lasso")
               ),
               
-              # CS Linear Model with all Spends
+              # CS Linear Model with sum of Spends
               conditionalPanel(
                 condition = "input.category == 'Cross-sectional Sales'",
                 column(width = 12,
                 titlePanel("Linear Regression with all Spends"),
-                dataTableOutput("LM.CS")))
+                dataTableOutput("LM.CS"),
+                dataTableOutput("cs.stats"),
+                dataTableOutput("CS.log"),
+                dataTableOutput("cs.log.stats"),
+                plotOutput("cs.log.plot")))
             ),
             
               conditionalPanel(
@@ -215,21 +219,7 @@ read.data <- function(inFile) {
 
 server <- function(input, output) {
   
-  # Explanatory variables chart
-  # output$explanatoryVariablesPlot <- renderPlot({
-  #   plot.explanatory.variable(
-  #     read.data(input$file1),
-  #     input$explanatory)
-  # })
   
-  # Explanatory variables histogram
-  # output$explanatoryVariablesHistogram <- renderPlot({
-  #   plot.explanatory.histogram(
-  #     read.data(input$file1),
-  #     input$explanatory
-  #   )
-  # })
-  # 
   # Data table as Input
   output$CSVfigures <- renderDataTable({
     read.data(input$file1)
@@ -334,16 +324,44 @@ server <- function(input, output) {
   # Get total spends across channels
   output$CStotalSpends <- renderDataTable({
     if (input$category == "Cross-sectional Sales") {
-      CS.SUM.Spends((read.data(input$file1)))
+      CS.SUM.Spends(read.data(input$file1))
     }
   },options = list(scrollX = TRUE))
   
-  # LM model with CS and Spends
-  output$LM.CS <- renderText({
+  # OLS model with CS and Spends
+  output$LM.CS <- renderDataTable({
     if (input$category == "Cross-sectional Sales") {
-      CS.lm((read.data(input$file1)))
+      CS.lm(read.data(input$file1))
     }
   })
+
+  # Stats from OLS LM model stats
+  output$cs.stats <- renderDataTable({
+    if (input$category == "Cross-sectional Sales") {
+      CS.lm.MSE.R(read.data(input$file1))
+    }
+  }) 
+  
+    # Log-Log OLS model with CS and Spends
+    output$CS.log <- renderDataTable({
+      if (input$category == "Cross-sectional Sales") {
+        CS.log.lm(read.data(input$file1))
+      }
+  })
+
+    # Stats from Log-Log OLS model
+    output$cs.log.stats <- renderDataTable({
+      if (input$category == "Cross-sectional Sales") {
+        CS.log.MSE.R(read.data(input$file1))
+      }
+    }) 
+    
+    # CS-CURVE - GGPLOT log-log Value and Spends
+    output$cs.log.plot <- renderPlot({
+      if (input$category == "Cross-sectional Sales") {
+        CS.ggplot.line(read.data(input$file1))
+      }
+    }) 
   
   # ===========================Price and Promotions Edit=============================
   
