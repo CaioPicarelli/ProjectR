@@ -186,7 +186,8 @@ ui <- dashboardPage(
                 dataTableOutput("CS.log"),
                 dataTableOutput("cs.log.stats"),
                 textInput("selectedBrand",label = "Type Brand Name: ",value = "Brand1"),
-                plotOutput("cs.log.plot")))
+                plotOutput("cs.log.plot"),
+                plotOutput("CS.boxwhisker")))
             ),
             
               conditionalPanel(
@@ -362,7 +363,14 @@ server <- function(input, output) {
       if (input$category == "Cross-sectional Sales") {
         CS.ggplot.line(read.data(input$file1), input$selectedBrand)
       }
-    }) 
+    })
+    
+    # Plot box and whisker 
+    output$CS.boxwhisker<- renderPlot({
+      if (input$category == "Cross-sectional Sales") {
+        boxnwhisker(read.data(input$file1))
+      }
+    })
   
   # ===========================Price and Promotions Edit=============================
   

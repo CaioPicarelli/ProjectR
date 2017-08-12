@@ -369,6 +369,15 @@ CS.ggplot.line <- function(data, selectedBrand) {
 }
 
 
+# Plot Box and Whisker
+boxnwhisker <- function(data){
+  total.spends <- CS.SUM.Spends(data)
+  ggplot(total.spends,aes(y = Value,x="")) + 
+    geom_boxplot(colour="blue") + 
+    geom_jitter(width = 0.2) +
+    geom_boxplot(outlier.colour ="red", outlier.shape = 1)
+}
+
 # =========================PRICE AND PROMOTIONS ===========================================
 
 # Histogram of Modelled Product - Frequency of Sales - Product 1
