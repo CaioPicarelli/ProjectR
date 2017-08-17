@@ -112,10 +112,9 @@ ui <- dashboardPage(
               titlePanel("Data Visualisation"),
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
-                dataTableOutput("")
-                
+                h3("Value vs Media"),
+                plotOutput("TS.Sales.TV")
               ),
-              
               
               conditionalPanel(
                 condition = "input.category == 'Cross-sectional Sales'",
@@ -154,15 +153,17 @@ ui <- dashboardPage(
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
                 column(width = 12,
-                       titlePanel("Linear Regression"),
-                       "Model coefficients:",
+                       h3("Linear Model"),
                        dataTableOutput("LM.TS"),
-                       "MSE LM: ",
-                       textOutput("TS.MSE"),
-                       "Predicted: ",
+                       dataTableOutput("TS.OLS.stats"),
+                       h3("Predicted vs Observed Sales Value: "),
                        plotOutput("LM.pred"),
+                       h3("Linear Model with Dummies"),
                        dataTableOutput("OLS.du_TS"),
+                       dataTableOutput("OLS.d.stats"),
+                       h3("Spends Level for Curves"),
                        dataTableOutput("SpendSlopeTS"),
+                       h3("Curves at Channel Level"),
                        plotOutput("curvesPlot")
                        ),
 
@@ -244,9 +245,9 @@ server <- function(input, output) {
   })
   
   # Plot TS.Value against period
-  output$TS.SalesPeriod <- renderPlot({
+  output$TS.Sales.TV <- renderPlot({
     if (input$category == "Time series Sales") {
-      plot.TS.period(read.data(input$file1))
+      plot.TS.TV(read.data(input$file1),input$TS.explanatory)
     }
   })
   
@@ -266,9 +267,9 @@ server <- function(input, output) {
   })
   
   # Calculate MSE for LM
-  output$TS.MSE<- renderText({
+  output$TS.OLS.stats<- renderDataTable({
     if (input$category == "Time series Sales") {
-      MSE.LM(read.data(input$file1), input)
+      MSE.Rsq.LM(read.data(input$file1), input)
     }
   })
   
@@ -307,12 +308,22 @@ server <- function(input, output) {
     }
   })
   
+  
+  # Check OLS for TS with Dummies
+  output$OLS.d.stats <- renderDataTable({
+    if (input$category == "Time series Sales") {
+      MSE.Rsq.LM.du(read.data(input$file1), input)
+    }
+  })
+  
   # GGplot with Curves
   output$curvesPlot <- renderPlot({
     if (input$category == "Time series Sales") {
       Curves(read.data(input$file1), input)
     }
   })
+  
+  MSE.Rsq.LM.du
   
 # ================================= Cross Sectional Sales Edit===================  
   

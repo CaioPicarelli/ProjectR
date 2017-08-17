@@ -9,52 +9,24 @@ plot.explanatory.variable <- function(data, variable) {
   ggplot(data, aes_string(x=variable, y="Value")) + geom_point()
 }
 
-#' Returns a histogram for selected variable =======================================
-# TODO: Replace with real implementation
-plot.explanatory.histogram <- function(data, variable) {
-  temp.data <- data.frame(
-    x = rnorm(1000)
-  )
-  ggplot(temp.data, aes(x)) + geom_histogram()
+#' Returns a ggplot bar plot for TS TV and Value =======================================
+plot.TS.TV <- function(data,variable) {
+  ggplot(data) + 
+    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.5,colour="red") +
+    geom_bar(aes(x=Period,y=10*TV),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./10,name="TV"),labels = comma) +
+    scale_x_continuous(labels = comma)
+    labs(y = "Monthly Sales Value", x = "Period")
+    
 }
 
-#' Returns linear model regression coeffs =======================================
-# TODO: Replace with real implementation
-linear.reg.coeffs <- function(data) {
-  data.frame(
-    Medium = c("TV", "Radio", "Print"),
-    Coefficient = c(1234.0, 5678.0, 9876.0)
-  )
-}
-
-#' Returns linear regression spend curve plot =======================================
-# TODO: Replace with real implementation
-linear.reg.spend.curve <- function(data) {
-  temp.data <- data.frame(
-    Spend = seq(0, 1e6, length.out = 100),
-    Sales = c(seq(0, 1e7, length.out = 100),
-              seq(0, 2e7, length.out = 100)),
-    Media = c(rep("TV", 100), rep("Radio", 100))
-  )
-  
-  ggplot(temp.data, aes(x=Spend, y=Sales, color=Media)) + geom_line()
-}
-
-#' Returns a ggplot scatter plot for TS period and Value =======================================
-plot.TS.period <- function(data, variable) {
-  ggplot(data, aes(x=Period, y=Value)) + geom_line() + 
-  theme(axis.text.x = element_text(size = 10,angle = 90)) + 
-  theme(axis.text.y = element_text(size = 10,angle = 0)) + 
-  labs(y = "Value",x = "Period",title = "Value vs Period")
-}
-
+# Function to Calculate Adstocks on TS Media Spends converted to GRPs
 adstock <- function(GRP, ret.factor, n) {
   adstock <- integer(length = n)
   adstock[1] <- GRP[1]
   for(i in 2:n) {
     adstock[i] <- (adstock[i - 1] * ret.factor) + GRP[i]
   }
-  
   return(adstock)
 }
 
@@ -102,14 +74,36 @@ TS.Ads.CO <- function(data, input){
 #' Runs OLS TS Regression on Value and media =======================================
 LM <- function(data, input) {
   df <- TS.Ads.CO(data, input)
-  TS.fit.du <- lm(data.Value ~ data.TVads + data.Digads + data.OOHads + data.Radioads + 
+  TS.fit <- lm(data.Value ~ data.TVads + data.Digads + data.OOHads + data.Radioads + 
                  data.Printads + data.Distribution, df)
   
   Results <- data.frame(predictor = c("Intercept","TV","Digital","OOH","Radio","Print","Distribution"))
-  coefs <- as.data.frame(summary(TS.fit.du)$coefficients)
+  coefs <- as.data.frame(summary(TS.fit)$coefficients)
   Results[,names(coefs)] <- coefs
   
   return(Results)
+}
+
+#' Return Stats for OLS TS Value ~ Media =======================================
+MSE.Rsq.LM <- function(data, input) {
+  df <- TS.Ads.CO(data, input)
+  TS.fit <- lm(data.Value ~ data.TVads + data.Digads + data.OOHads + data.Radioads + 
+                 data.Printads + data.Distribution, df)
+  pred.data <- df[, c(
+    "data.TVads",
+    "data.Digads",
+    "data.OOHads",
+    "data.Radioads",
+    "data.Printads",
+    "data.Distribution")]
+  
+  pred <- predict(TS.fit,pred.data,se=TRUE)
+  MSE <- mean(df$data.Value - predict(TS.fit,pred.data))^2
+  Rsqr <- summary(TS.fit)$r.squared
+  
+  TS.stats <- data.frame(MSE = MSE, Rsqr = Rsqr)
+  
+  return(TS.stats)
 }
 
 # Get Spend Slope for each media = 100 GRPs * Cost per GRPs
@@ -135,6 +129,29 @@ TS.OLS.du <- function(data, input) {
   
   return(Results)
 }
+
+# Print stats from OLS with Dummies ================================================
+MSE.Rsq.LM.du <- function(data, input) {
+  df <- TS.Ads.CO(data, input)
+  TS.fit.du <- lm(data.Value ~ data.TVd + data.Digd + data.OOHd + data.Radiod + 
+                    data.Printd , df)
+  pred.data <- df[, c(
+    "data.TVd",
+    "data.Digd",
+    "data.OOHd",
+    "data.Radiod",
+    "data.Printd")]
+  
+  pred <- predict(TS.fit.du,pred.data,se=TRUE)
+  MSE <- mean(df$data.Value - predict(TS.fit.du,pred.data))^2
+  Rsqr <- summary(TS.fit.du)$r.squared
+  
+  TS.d.stats <- data.frame(MSE = MSE, Rsqr = Rsqr)
+  
+  return(TS.d.stats)
+}
+
+
 
 # Get Spend Slope for each media = 100 GRPs * Cost per GRPs
 SpendSlope_TS <- function(data,input){
@@ -177,39 +194,14 @@ Curves <- function(data,input){
   for(medium in media) {
     labels <- c(labels, rep(medium, length(spendsRange)))
   }
-
   curves <- data.frame(
     Spend = rep(spendsRange, length(media)),
     Sales = curveData,
     Media = labels
   )
-
-  
   ggplot(curves, aes(x=Spend,y=Sales, color=Media)) + geom_line()
 }
 
-
-
-#' Get Predictions and Error from LM =======================================
-MSE.LM <- function(data, input) {
-  df <- TS.Ads.CO(data, input)
-  TS.fit <- lm(data.Value ~ data.TVads + data.Digads + data.OOHads + data.Radioads + 
-                 data.Printads + data.Distribution, df)
-  pred.data <- df[, c(
-    "data.TVads",
-    "data.Digads",
-    "data.OOHads",
-    "data.Radioads",
-    "data.Printads",
-    "data.Distribution")]
-  
-  pred <- predict(TS.fit,pred.data,se=TRUE)
-  
-  MSE <- mean(df$data.Value - predict(TS.fit,pred.data))^2
-  
-  
-  return(MSE)
-}
 
   # Get plot of observed and fitted =======================================
 plot.LM <- function(data,input){
@@ -293,6 +285,7 @@ LM.Lasso <- function(data,input){
 
 
 # =========================CROSS SECTIONAL ===============================================
+
 
 #' Returns Spends by media for each brand in Category
 CS.Spends <- function(data,variable) {
