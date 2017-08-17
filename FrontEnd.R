@@ -112,8 +112,16 @@ ui <- dashboardPage(
               titlePanel("Data Visualisation"),
               conditionalPanel(
                 condition = "input.category == 'Time series Sales'",
-                h3("Value vs Media"),
-                plotOutput("TS.Sales.TV")
+                h3("Value and TV"),
+                plotOutput("TS.Sales.TV"),
+                h3("Value and Radio"),
+                plotOutput("TS.Sales.Radio"),
+                h3("Value and Print"),
+                plotOutput("TS.Sales.Print"),
+                h3("Value and OOH"),
+                plotOutput("TS.Sales.OOH"),
+                h3("Value and Digital"),
+                plotOutput("TS.Sales.Digital")
               ),
               
               conditionalPanel(
@@ -244,10 +252,38 @@ server <- function(input, output) {
     linear.reg.spend.curve(read.data(input$file1))
   })
   
-  # Plot TS.Value against period
+  # Plot TS.Value against Media
   output$TS.Sales.TV <- renderPlot({
     if (input$category == "Time series Sales") {
-      plot.TS.TV(read.data(input$file1),input$TS.explanatory)
+      plot.TS.TV(read.data(input$file1))
+    }
+  })
+  
+  # Plot TS.Value against Media
+  output$TS.Sales.Radio <- renderPlot({
+    if (input$category == "Time series Sales") {
+      plot.TS.Radio(read.data(input$file1))
+    }
+  })
+  
+  # Plot TS.Value against Media
+  output$TS.Sales.Print <- renderPlot({
+    if (input$category == "Time series Sales") {
+      plot.TS.Print(read.data(input$file1))
+    }
+  })
+  
+  # Plot TS.Value against Media
+  output$TS.Sales.OOH <- renderPlot({
+    if (input$category == "Time series Sales") {
+      plot.TS.OOH(read.data(input$file1))
+    }
+  })
+  
+  # Plot TS.Value against Media
+  output$TS.Sales.Digital <- renderPlot({
+    if (input$category == "Time series Sales") {
+      plot.TS.Digital(read.data(input$file1))
     }
   })
   

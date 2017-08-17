@@ -12,12 +12,46 @@ plot.explanatory.variable <- function(data, variable) {
 #' Returns a ggplot bar plot for TS TV and Value =======================================
 plot.TS.TV <- function(data,variable) {
   ggplot(data) + 
-    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.5,colour="red") +
+    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
     geom_bar(aes(x=Period,y=10*TV),stat = "identity",fill = "tan1",colour="sienna3") +
     scale_y_continuous(sec.axis = sec_axis(~./10,name="TV"),labels = comma) +
-    scale_x_continuous(labels = comma)
     labs(y = "Monthly Sales Value", x = "Period")
-    
+}
+
+#' Returns a ggplot bar plot for TS Radio and Value =======================================
+plot.TS.Radio <- function(data,variable) {
+  ggplot(data) + 
+    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
+    geom_bar(aes(x=Period,y=10*Radio),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./10,name="Radio"),labels = comma) +
+    labs(y = "Monthly Sales Value", x = "Period")
+}
+
+#' Returns a ggplot bar plot for TS Print and Value =======================================
+plot.TS.Print <- function(data,variable) {
+  ggplot(data) + 
+    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
+    geom_bar(aes(x=Period,y=10*Print),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./10,name="Print"),labels = comma) +
+    labs(y = "Monthly Sales Value", x = "Period")
+}
+
+#' Returns a ggplot bar plot for TS OOH and Value =======================================
+plot.TS.OOH <- function(data,variable) {
+  ggplot(data) + 
+    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
+    geom_bar(aes(x=Period,y=10*OOH),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./10,name="OOH"),labels = comma) +
+    labs(y = "Monthly Sales Value", x = "Period")
+}
+
+#' Returns a ggplot bar plot for TS Digital and Value =======================================
+plot.TS.Digital <- function(data,variable) {
+  ggplot(data) + 
+    geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
+    geom_bar(aes(x=Period,y=10*Digital),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./10,name="Digital"),labels = comma) +
+    labs(y = "Monthly Sales Value", x = "Period")
 }
 
 # Function to Calculate Adstocks on TS Media Spends converted to GRPs
