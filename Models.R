@@ -201,6 +201,7 @@ SpendSlope_TS <- function(data,input){
   return(results)
 }
 
+# Function to build a range with Negative exponential functional form
 neg.exp <- function(sales.max, spend.range, spend.slope) {
   sales.max*(1 - exp(-spend.range/spend.slope))
 }
@@ -210,7 +211,7 @@ Curves <- function(data,input){
   
   # Range of spends for chart
   coeffs <- SpendSlope_TS(data,input)
-  spendsRange <- seq(0,500000,length.out = 25)
+  spendsRange <- seq(0,300000,length.out = 25)
 
   media = c("TV", "Digital", "OOH", "Radio","Print")
 
