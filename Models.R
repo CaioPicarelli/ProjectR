@@ -330,6 +330,7 @@ CS.Spends <- function(data,variable) {
 # Return data with Spends column summing all spends across channels
 CS.SUM.Spends <- function(data) {
   data$Spends <- data$TV + data$Radio +data$Print + data$Digital + data$OOH
+  data$Spend.Sales.Ratio <- data$Spends/data$Value
   return(data)
 }
 
@@ -405,6 +406,33 @@ boxnwhisker <- function(data){
     geom_jitter(width = 0.2) +
     geom_boxplot(outlier.colour ="red", outlier.shape = 1)
 }
+
+# CS Spends vs Brands
+CS.Spend.Brand <- function(data){
+  total.spends <- CS.SUM.Spends(data)
+  
+  ggplot(total.spends,aes(x=Brand,y=Spends)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle=90)) +
+    scale_y_continuous(labels = comma)
+}
+
+# CS Spend/Sales Ratio
+CS.Spend.Sales.Ratio<-function(data){
+  total.spends <- CS.SUM.Spends(data)
+  
+  ggplot(total.spends,aes(x=Brand,y=Spend.Sales.Ratio)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle=90))
+}
+
+# CS SOS vs SOM
+CS.SOS.SOM <-function(data){
+  total.spends <- CS.SUM.Spends(data)
+  
+  
+}
+
 
 # =========================PRICE AND PROMOTIONS ===========================================
 

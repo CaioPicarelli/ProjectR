@@ -126,29 +126,27 @@ ui <- dashboardPage(
               
               conditionalPanel(
                 condition = "input.category == 'Cross-sectional Sales'",
-              fluidRow(
                 box(title="",
                 radioButtons("CS.explanatory", "Pick one Channel:", 
-                             c("TV", "Radio", "OOH","Digital","Print")))),
-              fluidRow(
+                             c("TV", "Radio", "OOH","Digital","Print"))),
                 title = "Plot of Values and Media Spends",
-                box(plotOutput("CS.Spends.Brand"))),
-              
-              fluidPage(
+                box(plotOutput("CS.Spends.Brand")),
                 titlePanel("Uploaded CSV data"),
-                dataTableOutput('CStotalSpends'))),
+                dataTableOutput('CStotalSpends'),
+                h3("Spend per Brand"),
+                plotOutput("plot.spend.brand"),
+                h3("Spend - Value Ratio"),
+                plotOutput("plot.spend.value.ratio")),
               
               conditionalPanel(
                 condition = "input.category == 'Price and Promotions'",
-              fluidPage(
-                fluidRow(
                 titlePanel("Visualization Price and Promotions"),
                 plotOutput("PP.hist.p1"),
                 plotOutput("PP.hist.p2"),
                 plotOutput("bystore1"),
                 plotOutput("bystore2")
                 
-              ))))),
+              ))),
     
     
     # Model output page======================================================
@@ -214,7 +212,7 @@ ui <- dashboardPage(
        
 #===============================SERVER======================================================
 
-'source("Curves.R")'
+# Call file where functions are run
 source("Models.R")
 
 read.data <- function(inFile) {
@@ -359,8 +357,6 @@ server <- function(input, output) {
     }
   })
   
-  MSE.Rsq.LM.du
-  
 # ================================= Cross Sectional Sales Edit===================  
   
   # Plot CS Media Spends
@@ -418,6 +414,22 @@ server <- function(input, output) {
         boxnwhisker(read.data(input$file1))
       }
     })
+    
+    # Plot Spend vs Brands
+    output$plot.spend.brand<- renderPlot({
+      if (input$category == "Cross-sectional Sales") {
+        CS.Spend.Brand(read.data(input$file1))
+      }
+    })
+    
+    # Plot Ratio of Spends and Sales Value
+    output$plot.spend.value.ratio<- renderPlot({
+      if (input$category == "Cross-sectional Sales") {
+        CS.Spend.Sales.Ratio(read.data(input$file1))
+      }
+    })
+    
+    CS.Spend.Sales.Ratio
   
   # ===========================Price and Promotions Edit=============================
   
