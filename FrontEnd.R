@@ -136,7 +136,9 @@ ui <- dashboardPage(
                 h3("Spend per Brand"),
                 plotOutput("plot.spend.brand"),
                 h3("Spend - Value Ratio"),
-                plotOutput("plot.spend.value.ratio")),
+                plotOutput("plot.spend.value.ratio"),
+                h3("Share of Market vs Share of Spends"),
+                plotOutput("plot.som.sos")),
               
               conditionalPanel(
                 condition = "input.category == 'Price and Promotions'",
@@ -144,7 +146,9 @@ ui <- dashboardPage(
                 plotOutput("PP.hist.p1"),
                 plotOutput("PP.hist.p2"),
                 plotOutput("bystore1"),
-                plotOutput("bystore2")
+                plotOutput("bystore2"),
+                plotOutput("plot.p1.sales"),
+                plotOutput("p1.sales.prom.box")
                 
               ))),
     
@@ -429,21 +433,28 @@ server <- function(input, output) {
       }
     })
     
-    CS.Spend.Sales.Ratio
+    
+    # Plot sos vs som
+    output$plot.som.sos<- renderPlot({
+      if (input$category == "Cross-sectional Sales") {
+        CS.SOS.SOM(read.data(input$file1))
+      }
+    })
+
   
   # ===========================Price and Promotions Edit=============================
   
   # Price and Promotions histogram for product 1
   output$PP.hist.p1 <- renderPlot({
     if (input$category == "Price and Promotions") {
-      hist.p1((read.data(input$file1)))
+      hist.p1(read.data(input$file1))
     }
   })
   
   # Price and Promotions histogram for product 2
   output$PP.hist.p2 <- renderPlot({
     if (input$category == "Price and Promotions") {
-      hist.p2((read.data(input$file1)))
+      hist.p2(read.data(input$file1))
     }
   })
   
@@ -457,9 +468,24 @@ server <- function(input, output) {
   # Price and Promotions distribution by shop - 2
   output$bystore2 <- renderPlot({
     if (input$category == "Price and Promotions") {
-      store.dist2((read.data(input$file1)))
+      store.dist2(read.data(input$file1))
     }
   })
+  
+  # p1 sales per period
+  output$plot.p1.sales <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      p1.sales.period(read.data(input$file1))
+    }
+  })
+  
+  # p1 sales vs prom box
+  output$plot.p1.sales <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      p1.sales.prom.box(read.data(input$file1))
+    }
+  })
+  
   
 }
 

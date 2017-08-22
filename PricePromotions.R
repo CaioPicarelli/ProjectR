@@ -115,17 +115,17 @@ abline (v=quantile(store.df$p1sales,pr=0.9),lty=3)
 by(store.df$p1sales,store.df$storeNum,mean)
 by(store.df$p1sales,list(store.df$storeNum,store.df$Year),mean)
 
-aggregate(store.df$p1sales,by=list(country=store.df$country,store=store.df$storeNum),sum)
+test<-aggregate(PP$p1sales ~ PP$Week,data = PP,FUN = sum)
 
 
-'plot with weekly sales and Units sold for One Country'
+#'plot with weekly sales and Units sold for One Country'
 UnitsVolume1Chart <- aggregate(store.df$p1sales ~ store.df$Week,FUN=sum,subset = store.df$country=='US')
 plot(UnitsVolume1Chart,xlab = "Weeks",ylab="Sales of Units",type="l",main="Weekly Units Sold",
      ylim=c(min(UnitsVolume1Chart$`store.df$p1sales` - 100),
             max(UnitsVolume1Chart$`store.df$p1sales` + 50)))
 
 
-'Create Price Difference and Price Elasticity'
+#'Create Price Difference and Price Elasticity'
 store.df$PriceDiff <- store.df$p1price - store.df$p2price
 AVGVol1<-mean(store.df[store.df$country == 'US', ]$p1sales)
   

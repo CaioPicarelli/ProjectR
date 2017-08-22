@@ -324,13 +324,19 @@ LM.Lasso <- function(data,input){
 
 #' Returns Spends by media for each brand in Category
 CS.Spends <- function(data,variable) {
-  ggplot(data, aes_string(x=variable, y="Value")) + geom_point()
+  ggplot(data, aes_string(x=variable, y="Value")) +
+    geom_point() +
+    geom_text(aes(label=Brand),hjust=0,vjust=0)
 }
 
 # Return data with Spends column summing all spends across channels
 CS.SUM.Spends <- function(data) {
   data$Spends <- data$TV + data$Radio +data$Print + data$Digital + data$OOH
   data$Spend.Sales.Ratio <- data$Spends/data$Value
+  data$totalSpends <- sum(data$Spends)
+  data$totalValue <- sum(data$Value)
+  data$SOS <- data$Spends/data$totalSpends
+  data$SOM <- data$Value/data$totalValue
   return(data)
 }
 
@@ -429,8 +435,10 @@ CS.Spend.Sales.Ratio<-function(data){
 # CS SOS vs SOM
 CS.SOS.SOM <-function(data){
   total.spends <- CS.SUM.Spends(data)
-  
-  
+  ggplot(total.spends,aes(x=SOS,y=SOM))+
+    geom_point() +
+    geom_text(aes(label=Brand),hjust=0,vjust=0)+
+    geom_abline(intercept = 0,slope = 1,colour = "blue")
 }
 
 
@@ -470,7 +478,18 @@ store.dist2 <- function(data){
     labs(x = "Product 2 Sales (Units) by store")
 }
 
+# Sales per Period for Product 1
+p1.sales.period <- function(data){
+  ggplot(data,aes(y=p1sales,x=Week,color = as.factor(Year))) +
+    geom_line()
+}
 
+# BoxPlot Sales per Period for Product 1
+p1.sales.prom.box <- function(data){
+  boxplot(p1sales ~ p1prom, data=data,yaxt="n",xlab="P2 promoted in Store?",ylab="Weekly Sales",
+          main="Weekly Sales of P2 with and without Promotion")
+  axis(side = 2, at=c(1,2),labels = c("No","Yes"))
+}
 
 
 
