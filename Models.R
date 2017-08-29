@@ -2,6 +2,8 @@
 library(ggplot2)
 library(glmnet)
 library(scales)
+library(boot)
+
 rm(list=ls())
 
 #' Returns a ggplot scatter plot for chosen explanatory variables
@@ -408,9 +410,9 @@ CS.ggplot.line <- function(data, selectedBrand) {
 boxnwhisker <- function(data){
   total.spends <- CS.SUM.Spends(data)
   ggplot(total.spends,aes(y = Value,x="")) + 
-    geom_boxplot(colour="blue") + 
+    geom_boxplot() + 
     geom_jitter(width = 0.2) +
-    geom_boxplot(outlier.colour ="red", outlier.shape = 1)
+    geom_text(aes(label = Brand),hjust=0,vjust=0)
 }
 
 # CS Spends vs Brands
@@ -480,7 +482,7 @@ store.dist2 <- function(data){
 
 # Sales per Period for Product 1
 p1.sales.period <- function(data){
-  ggplot(data,aes(y=p1sales,x=Week,color = as.factor(Year))) +
+  ggplot(data,aes(y = p1sales,x = Week,color = as.factor(Year))) +
     geom_line()
 }
 
@@ -489,6 +491,39 @@ p1.sales.prom.box <- function(data){
   boxplot(p1sales ~ p1prom, data=data,yaxt="n",xlab="P2 promoted in Store?",ylab="Weekly Sales",
           main="Weekly Sales of P2 with and without Promotion")
   axis(side = 2, at=c(1,2),labels = c("No","Yes"))
+}
+
+# Model running GLM on p1prom
+PP.model <- function(data){
+  fit <- glm(p1prom ~ p1sales,data, family = binomial)
+
+  pp.stats <- data.frame(summary(fit)$coefficients)
+  return(pp.stats)
+}
+
+# PP Model with prediction
+PP.Prediction <-function (data,input){
+  fit <- glm(p1prom ~ p1sales,data, family = binomial)
+  x <- data.frame(PP.Value = input$PP.Value)
+  
+  Probability <- predict(fit,x,type="response")
+  return(Probability)
+}
+
+
+# PP Model Fitted vs Sales Chart
+PP.Prediction.chart <-function (data){
+  fit <- glm(p1prom ~ p1sales,data, family = binomial)
+  
+  plot(data$p1sales,fit$fitted.values,col="blue",pch="o",xlab = "p1sales",ylab = "Fitted Values")
+  xrange = seq(min(data$p1sales),max(data$p1sales),length.out = 100)
+  
+  lines(xrange,inv.logit(fit$coefficients[1]+fit$coefficients[2]*xrange),col="red")
+  y <- data$p1prom
+  x <- data$p1sales
+  glm.chart <- glm(y ~ x,family = binomial)
+  yrange <- predict(glm.chart,data.frame(x=xrange),type="response")
+  lines(xrange,yrange,col="red")
 }
 
 

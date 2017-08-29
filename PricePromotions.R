@@ -62,10 +62,30 @@ rm(list=ls())
 
 #=============================================================================
 
-
+# Model with PP
 setwd("~/Desktop")
-write.csv(store.df,file = "TS-PP.csv")
+#write.csv(store.df,file = "TS-PP.csv")
 PP <- read.csv("TS-PP.csv",sep = ",",header = T)
+fit <- glm(p1prom~p1sales,PP, family = binomial)
+
+table <- data.frame(summary(fit)$coefficients)
+table
+
+predict(fit,data.frame(p1sales=200),type="response")
+plot(PP$p1sales,fit$fitted.values,col="blue",pch="o",xlab = "p1sales",ylab = "Fitted Values")
+
+xrange=seq(min(PP$p1sales),max(PP$p1sales),length.out = 100)
+library(boot)
+lines(xrange,inv.logit(fit$coefficients[1]+fit$coefficients[2]*xrange),col="red")
+
+y <- PP$p1prom
+x<- PP$p1sales
+glm.chart <- glm(y~x,family = binomial)
+yrange <- predict(glm.chart,data.frame(x=xrange),type="response")
+lines(xrange,yrange,col="red")
+
+
+ggplot(PP,aes(y = p1sales,x = Week)) + geom_line()
 
 
 'Histogram'

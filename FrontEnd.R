@@ -147,7 +147,7 @@ ui <- dashboardPage(
                 plotOutput("PP.hist.p2"),
                 plotOutput("bystore1"),
                 plotOutput("bystore2"),
-                plotOutput("plot.p1.sales"),
+                plotOutput("plot.p1.sales.period"),
                 plotOutput("p1.sales.prom.box")
                 
               ))),
@@ -161,21 +161,21 @@ ui <- dashboardPage(
               
               # Linear regression model output
               conditionalPanel(
-                condition = "input.category == 'Time series Sales'",
-                column(width = 12,
-                       h3("Linear Model"),
-                       dataTableOutput("LM.TS"),
-                       dataTableOutput("TS.OLS.stats"),
-                       h3("Predicted vs Observed Sales Value: "),
-                       plotOutput("LM.pred"),
-                       h3("Linear Model with Dummies"),
-                       dataTableOutput("OLS.du_TS"),
-                       dataTableOutput("OLS.d.stats"),
-                       h3("Spends Level for Curves"),
-                       dataTableOutput("SpendSlopeTS"),
-                       h3("Curves at Channel Level"),
-                       plotOutput("curvesPlot")
-                       ),
+                  condition = "input.category == 'Time series Sales'",
+                  column(width = 12,
+                   h3("Linear Model"),
+                   dataTableOutput("LM.TS"),
+                   dataTableOutput("TS.OLS.stats"),
+                   h3("Predicted vs Observed Sales Value: "),
+                   plotOutput("LM.pred"),
+                   h3("Linear Model with Dummies"),
+                   dataTableOutput("OLS.du_TS"),
+                   dataTableOutput("OLS.d.stats"),
+                   h3("Spends Level for Curves"),
+                   dataTableOutput("SpendSlopeTS"),
+                   h3("Curves at Channel Level"),
+                   plotOutput("curvesPlot")
+                   ),
 
               # Ridge regression output
                 column(width = 12,
@@ -189,22 +189,28 @@ ui <- dashboardPage(
               
               # CS Linear Model with sum of Spends
               conditionalPanel(
-                condition = "input.category == 'Cross-sectional Sales'",
-                column(width = 12,
-                titlePanel("Linear Regression with all Spends"),
-                dataTableOutput("LM.CS"),
-                dataTableOutput("cs.stats"),
-                dataTableOutput("CS.log"),
-                dataTableOutput("cs.log.stats"),
-                textInput("selectedBrand",label = "Type Brand Name: ",value = "Brand1"),
-                plotOutput("cs.log.plot"),
-                plotOutput("CS.boxwhisker")))
-            ),
+                  condition = "input.category == 'Cross-sectional Sales'",
+                  column(width = 12,
+                  titlePanel("Linear Regression with all Spends"),
+                  dataTableOutput("LM.CS"),
+                  dataTableOutput("cs.stats"),
+                  dataTableOutput("CS.log"),
+                  dataTableOutput("cs.log.stats"),
+                  textInput("selectedBrand",label = "Type Brand Name: ",value = "Brand1"),
+                  plotOutput("cs.log.plot"),
+                  plotOutput("CS.boxwhisker")))
+        ),
             
               conditionalPanel(
-                condition = "input.category == 'Price and Promotions'",
-                titlePanel(""),
-                plotOutput("")
+                  condition = "input.category == 'Price and Promotions'",
+                  column(width=12,
+                  h3("GLM Model Promotions ~ Sales"),
+                  dataTableOutput("PP.glm"),
+                  numericInput("PP.Value",h5("Predict Value of "),value = 150),
+                  h5("...has probability of "),
+                  dataTableOutput("PP.model.prob"),
+                  h3("Fitted vs Sales"),
+                  plotOutput("PP.model.plot"))
                 
               )
             )
@@ -473,7 +479,7 @@ server <- function(input, output) {
   })
   
   # p1 sales per period
-  output$plot.p1.sales <- renderPlot({
+  output$plot.p1.sales.period <- renderPlot({
     if (input$category == "Price and Promotions") {
       p1.sales.period(read.data(input$file1))
     }
@@ -486,6 +492,28 @@ server <- function(input, output) {
     }
   })
   
+  # GLM Promotions ~ Sales
+  output$PP.glm <- renderDataTable({
+    if (input$category == "Price and Promotions") {
+      PP.model(read.data(input$file1))
+    }
+  })
+  
+  # PP Prediction Probability
+  output$PP.model.prob <- renderDataTable({
+    if (input$category == "Price and Promotions") {
+      PP.Prediction(read.data(input$file1),input)
+    }
+  })
+  
+  # PP Prediction chart
+  output$PP.model.plot <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      PP.Prediction.chart(read.data(input$file1))
+    }
+  })
+  
+    
   
 }
 
