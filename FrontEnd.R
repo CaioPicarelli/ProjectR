@@ -148,6 +148,7 @@ ui <- dashboardPage(
                 plotOutput("bystore1"),
                 plotOutput("bystore2"),
                 plotOutput("plot.p1.sales.period"),
+                plotOutput("plot.p1.sales.price.period"),
                 plotOutput("p1.sales.prom.box")
                 
               ))),
@@ -210,7 +211,10 @@ ui <- dashboardPage(
                   h5("...has probability of "),
                   dataTableOutput("PP.model.prob"),
                   h3("Fitted vs Sales"),
-                  plotOutput("PP.model.plot"))
+                  plotOutput("PP.model.plot"),
+                  h3("Log-Log Model Sales and Price for P1"),
+                  dataTableOutput("PP.price.model"),
+                  dataTableOutput("PP.price.model.Stats"))
                 
               )
             )
@@ -223,7 +227,7 @@ ui <- dashboardPage(
 #===============================SERVER======================================================
 
 # Call file where functions are run
-source("Models.R")
+source("Functions.R")
 
 read.data <- function(inFile) {
   if (is.null(inFile)) 
@@ -485,6 +489,13 @@ server <- function(input, output) {
     }
   })
   
+  # p1 sales vs price per period
+  output$plot.p1.sales.price.period <- renderPlot({
+    if (input$category == "Price and Promotions") {
+      p1.sales.price.period(read.data(input$file1))
+    }
+  })
+  
   # p1 sales vs prom box
   output$plot.p1.sales <- renderPlot({
     if (input$category == "Price and Promotions") {
@@ -513,7 +524,22 @@ server <- function(input, output) {
     }
   })
   
-    
+  # log-log Sales ~ price
+  output$PP.price.model <- renderDataTable({
+    if (input$category == "Price and Promotions") {
+      PP.model.price(read.data(input$file1))
+    }
+  })
+  
+  # log-log Sales ~ price Stats
+  output$PP.price.model.Stats <- renderDataTable({
+    if (input$category == "Price and Promotions") {
+      PP.model.price.stats(read.data(input$file1))
+    }
+  })
+
+  
+  
   
 }
 
