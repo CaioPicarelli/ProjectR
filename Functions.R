@@ -508,10 +508,10 @@ PP.model <- function(data){
 # PP Model with prediction
 PP.Prediction <-function (data,input){
   fit <- glm(p1prom ~ p1sales,data, family = binomial)
-  x <- data.frame(PP.Value = input$PP.Value)
+  x <- data.frame(p1sales = input$PP.Value)
   
   Probability <- predict(fit,x,type="response")
-  return(Probability)
+  return(as.data.frame(Probability))
 }
 
 
@@ -542,9 +542,10 @@ PP.model.price <- function(data){
 PP.model.price.stats <- function(data){
   fit <- lm(log(p1sales) ~ log(p1price),data)
   
-  pred.data <- data[, c("p1sales")]
+  pred.data <- data.frame(p1price = log(data[, c("p1price")]))
   
-  MSE <- mean((data$p1sales - predict(fit,pred.data,se=TRUE))^2)
+  predicted <- predict(fit, pred.data)
+  MSE <- mean((log(data$p1sales) - predicted)^2)
   Rsqr <- summary(fit)$r.squared
   stats <- data.frame(MSE = MSE,Rsqr = Rsqr)
   return(stats)

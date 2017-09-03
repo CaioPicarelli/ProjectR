@@ -199,8 +199,7 @@ ui <- dashboardPage(
                   dataTableOutput("cs.log.stats"),
                   textInput("selectedBrand",label = "Type Brand Name: ",value = "Brand1"),
                   plotOutput("cs.log.plot"),
-                  plotOutput("CS.boxwhisker")))
-        ),
+                  plotOutput("CS.boxwhisker"))),
             
               conditionalPanel(
                   condition = "input.category == 'Price and Promotions'",
@@ -214,7 +213,7 @@ ui <- dashboardPage(
                   plotOutput("PP.model.plot"),
                   h3("Log-Log Model Sales and Price for P1"),
                   dataTableOutput("PP.price.model"),
-                  dataTableOutput("PP.price.model.Stats"))
+                  dataTableOutput("PP.price.model.Stats")))
                 
               )
             )
