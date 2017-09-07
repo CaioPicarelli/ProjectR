@@ -175,17 +175,7 @@ ui <- dashboardPage(
                    h3("Spends Level for Curves"),
                    dataTableOutput("SpendSlopeTS"),
                    h3("Curves at Channel Level"),
-                   plotOutput("curvesPlot")
-                   ),
-
-              # Ridge regression output
-                column(width = 12,
-                       titlePanel("Ridge Regression"),
-                       plotOutput("TS.Ridge")),
-              
-              # Lasso Regression Output
-                titlePanel("Lasso"),
-                plotOutput("TS.Lasso")
+                   plotOutput("curvesPlot"))
               ),
               
               # CS Linear Model with sum of Spends
@@ -197,7 +187,7 @@ ui <- dashboardPage(
                   dataTableOutput("cs.stats"),
                   dataTableOutput("CS.log"),
                   dataTableOutput("cs.log.stats"),
-                  textInput("selectedBrand",label = "Type Brand Name: ",value = "Brand1"),
+                  textInput("selectedBrand",label = "Type Brand Name: ",value = "Client Name"),
                   plotOutput("cs.log.plot"),
                   plotOutput("CS.boxwhisker"))),
             
@@ -206,7 +196,8 @@ ui <- dashboardPage(
                   column(width=12,
                   h3("GLM Model Promotions ~ Sales"),
                   dataTableOutput("PP.glm"),
-                  numericInput("PP.Value",h5("Predict Value of "),value = 150),
+                  numericInput("PP.Value",
+                  h5("Predict Value of "),value = 150),
                   h5("...has probability of "),
                   dataTableOutput("PP.model.prob"),
                   h3("Fitted vs Sales"),
@@ -324,20 +315,6 @@ server <- function(input, output) {
   output$LM.pred<- renderPlot({
     if (input$category == "Time series Sales") {
       plot.LM(read.data(input$file1), input)
-    }
-  })
-  
-  # Plot TS Ridge Regression
-  output$TS.Ridge<- renderPlot({
-    if (input$category == "Time series Sales") {
-      LM.Ridge(read.data(input$file1), input)
-    }
-  })
-  
-  # Plot TS Lasso Regression
-  output$TS.Lasso<- renderPlot({
-    if (input$category == "Time series Sales") {
-      LM.Lasso(read.data(input$file1), input)
     }
   })
   

@@ -15,8 +15,8 @@ plot.explanatory.variable <- function(data, variable) {
 plot.TS.TV <- function(data,variable) {
   ggplot(data) + 
     geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
-    geom_bar(aes(x=Period,y=10*TV),stat = "identity",fill = "tan1",colour="sienna3") +
-    scale_y_continuous(sec.axis = sec_axis(~./10,name="TV"),labels = comma) +
+    geom_bar(aes(x=Period,y=100*TV),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./100,name="TV"),labels = comma) +
     labs(y = "Monthly Sales Value", x = "Period")
 }
 
@@ -24,8 +24,8 @@ plot.TS.TV <- function(data,variable) {
 plot.TS.Radio <- function(data,variable) {
   ggplot(data) + 
     geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
-    geom_bar(aes(x=Period,y=10*Radio),stat = "identity",fill = "tan1",colour="sienna3") +
-    scale_y_continuous(sec.axis = sec_axis(~./10,name="Radio"),labels = comma) +
+    geom_bar(aes(x=Period,y=100*Radio),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./100,name="Radio"),labels = comma) +
     labs(y = "Monthly Sales Value", x = "Period")
 }
 
@@ -33,8 +33,8 @@ plot.TS.Radio <- function(data,variable) {
 plot.TS.Print <- function(data,variable) {
   ggplot(data) + 
     geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
-    geom_bar(aes(x=Period,y=10*Print),stat = "identity",fill = "tan1",colour="sienna3") +
-    scale_y_continuous(sec.axis = sec_axis(~./10,name="Print"),labels = comma) +
+    geom_bar(aes(x=Period,y=100*Print),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./100,name="Print"),labels = comma) +
     labs(y = "Monthly Sales Value", x = "Period")
 }
 
@@ -42,8 +42,8 @@ plot.TS.Print <- function(data,variable) {
 plot.TS.OOH <- function(data,variable) {
   ggplot(data) + 
     geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
-    geom_bar(aes(x=Period,y=10*OOH),stat = "identity",fill = "tan1",colour="sienna3") +
-    scale_y_continuous(sec.axis = sec_axis(~./10,name="OOH"),labels = comma) +
+    geom_bar(aes(x=Period,y=100*OOH),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./100,name="OOH"),labels = comma) +
     labs(y = "Monthly Sales Value", x = "Period")
 }
 
@@ -51,8 +51,8 @@ plot.TS.OOH <- function(data,variable) {
 plot.TS.Digital <- function(data,variable) {
   ggplot(data) + 
     geom_line(aes(x=Period,y=Value),stat = "identity",lwd=1.2) +
-    geom_bar(aes(x=Period,y=10*Digital),stat = "identity",fill = "tan1",colour="sienna3") +
-    scale_y_continuous(sec.axis = sec_axis(~./10,name="Digital"),labels = comma) +
+    geom_bar(aes(x=Period,y=100*Digital),stat = "identity",fill = "tan1",colour="sienna3") +
+    scale_y_continuous(sec.axis = sec_axis(~./100,name="Digital"),labels = comma) +
     labs(y = "Monthly Sales Value", x = "Period")
 }
 
@@ -261,63 +261,6 @@ plot.LM <- function(data,input){
 }
 
 
- # Ridge Regression on Input.
-LM.Ridge <- function(data,input){
-  
-  df <- TS.Ads.CO(data, input)
-  x <- model.matrix(df$data.Value ~ df$data.TVads + data.Digads + data.OOHads + data.Radioads + 
-                      data.Printads + data.Distribution,df)[,-1]
-  y <- df$data.Value
-  grid = 10^seq(10,-2,length=100)
-  
-  'splitting sets into training and testing'
-  set.seed (1)
-  train = sample(1:nrow(x), nrow(x)/2)
-  test = (-train)
-  y.test = y[test]
-  
-  ridge <- glmnet(x[train,], y[train], alpha=0, lambda = grid, thresh =1e-12)
-  cv.out <- cv.glmnet(x[train,], y[train], alpha = 0)
-  
-  #names
-  cv.out.df <- data.frame(cv.out$lambda,cv.out$cvm)
-  names(cv.out.df)[1] <- paste("lambda")
-  names(cv.out.df)[2] <- paste("cvm")
-  
-  bestlam = cv.out$lambda.min
-
-ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red",size = 3)
-}
-
-# Run Lasso TS data
-LM.Lasso <- function(data,input){
-  
-  df <- TS.Ads.CO(data, input)
-  x <- model.matrix(df$data.Value ~ df$data.TVads + data.Digads + data.OOHads + data.Radioads + 
-                      data.Printads + data.Distribution,df)[,-1]
-  y <- df$data.Value
-  grid = 10^seq(10,-2,length=100)
-  
-  'splitting sets into training and testing'
-  set.seed (1)
-  train = sample(1:nrow(x), nrow(x)/2)
-  test = (-train)
-  y.test = y[test]
-  
-  set.seed(1)
-  cv.out <- cv.glmnet(x[train,],y[train],alpha = 1)
-  
-  #names
-  cv.out.df <- data.frame(cv.out$lambda,cv.out$cvm)
-  names(cv.out.df)[1] <- paste("lambda")
-  names(cv.out.df)[2] <- paste("cvm")
-  
-  bestlam = cv.out$lambda.min
-  
-  ggplot(cv.out.df,aes(x=log(lambda),y=cvm)) + geom_line(colour = "red",size = 3)
-}
-
-
 # =========================CROSS SECTIONAL ===============================================
 
 
@@ -325,7 +268,9 @@ LM.Lasso <- function(data,input){
 CS.Spends <- function(data,variable) {
   ggplot(data, aes_string(x=variable, y="Value")) +
     geom_point() +
-    geom_text(aes(label=Brand),hjust=0,vjust=0)
+    geom_text(aes(label=Brand),hjust=0,vjust=0) +
+    scale_x_continuous(labels = comma) +
+    scale_y_continuous(labels = comma)
 }
 
 # Return data with Spends column summing all spends across channels
@@ -384,7 +329,7 @@ CS.log.MSE.R <- function(data) {
   pred.data <- data.frame(Volume = log(total.spends$Volume),Spends = log(total.spends$Spends),
                           Distribution = log(total.spends$Distribution))
   
-  MSE <- mean((total.spends$Value - predict(CS.log.Linear,pred.data))^2)
+  MSE <- mean((log(total.spends$Value) - predict(CS.log.Linear,pred.data))^2)
   Rsqr <- summary(CS.log.Linear)$r.squared
   
   stats <- data.frame(MSE = MSE,Rsqr = Rsqr)
